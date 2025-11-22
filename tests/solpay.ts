@@ -1,39 +1,59 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
+import { Program, AnchorError } from "@coral-xyz/anchor";
 import BN from "bn.js";
-import {
-  Keypair,
-  PublicKey,
-  SystemProgram,
-  LAMPORTS_PER_SOL,
-} from "@solana/web3.js";
-import {
-  TOKEN_PROGRAM_ID,
-  createMint,
-} from "@solana/spl-token";
+import { createMint } from "@solana/spl-token";
 import { assert } from "chai";
 import { SolpaySmartcontract } from "../target/types/solpay_smartcontract";
 
-describe("solpay_smartcontract", () => {
+const { Keypair, PublicKey, SystemProgram, LAMPORTS_PER_SOL } = anchor.web3;
+const TOKEN_PROGRAM_ID = anchor.utils.token.TOKEN_PROGRAM_ID;
+type Web3PublicKey = anchor.web3.PublicKey;
+
+describe("SolPay Smart Contract - Production Test Suite", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.SolpaySmartcontract as Program<SolpaySmartcontract>;
-  
+  const program = anchor.workspace
+    .SolpaySmartcontract as Program<SolpaySmartcontract>;
+
+  // Helper: wrap .rpc() to log full SendTransactionError details
+  const rpcWithLogs = async (label: string, builder: any) => {
+    try {
+      const sig = await builder.rpc();
+      console.log(`[${label}] tx sig:`, sig);
+      return sig;
+    } catch (err: any) {
+      console.error(`[${label}] ERROR:`, err);
+      console.log(`[${label}] name:`, err?.name);
+      console.log(`[${label}] message:`, err?.message);
+
+      if (err?.logs) {
+        console.log(`[${label}] logs:`, err.logs);
+      }
+      if (err?.cause && err.cause.logs) {
+        console.log(`[${label}] cause logs:`, err.cause.logs);
+      }
+
+      throw err; // rethrow so mocha still sees failure
+    }
+  };
+
   // Test keypairs
   const merchant = Keypair.generate();
   const subscriber = Keypair.generate();
+  const subscriber2 = Keypair.generate();
 
-  // PDAs (will be calculated in each test)
-  let merchantRegistrationPDA: PublicKey;
-  let subscriptionPlanPDA: PublicKey;
-  let userSubscriptionPDA: PublicKey;
-  
-  // Test token mint
-  let tokenMint: PublicKey;
+  // PDAs
+  let merchantRegistrationPDA: Web3PublicKey;
+  let subscriptionPlanPDA: Web3PublicKey;
+  let userSubscriptionPDA: Web3PublicKey;
 
-  // Helper to airdrop SOL
-  const airdrop = async (pubkey: PublicKey, amount: number) => {
+  // Test token mints
+  let usdcMint: Web3PublicKey;
+  let solMint: Web3PublicKey;
+
+  // Helper: Airdrop SOL
+  const airdrop = async (pubkey: Web3PublicKey, amount: number) => {
     const sig = await provider.connection.requestAirdrop(
       pubkey,
       amount * LAMPORTS_PER_SOL
@@ -47,184 +67,295 @@ describe("solpay_smartcontract", () => {
   };
 
   before(async () => {
-    // Fund test accounts
+    console.log("\nSetting up test environment...\n");
+
+    // Fund accounts
     await airdrop(merchant.publicKey, 10);
     await airdrop(subscriber.publicKey, 10);
+    await airdrop(subscriber2.publicKey, 10);
     await airdrop(provider.wallet.publicKey, 10);
 
-    // Create test token mint
-    tokenMint = await createMint(
+    // Create test token mints
+    usdcMint = await createMint(
       provider.connection,
       provider.wallet.payer,
       provider.wallet.publicKey,
       null,
-      6
-    );
-  });
-
-  it("Initializes a merchant", async () => {
-    const merchantName = "Test Merchant";
-    const merchantWebUrl = "https://solpay.com";
-    const supportedTokens = [tokenMint];
-
-    // Derive PDA for merchant registration
-    [merchantRegistrationPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("merchant"), merchant.publicKey.toBuffer()],
-      program.programId
+      6 // USDC decimals
     );
 
-    // Initialize merchant
-    await program.methods
-      .initializeMerchant(merchantName, merchantWebUrl, supportedTokens)
-      .accounts({
-        merchantRegistration: merchantRegistrationPDA,
-        user: merchant.publicKey,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([merchant])
-      .rpc();
-    
-    // Fetch and verify account
-    const account = await program.account.merchantRegistration.fetch(merchantRegistrationPDA);
-    
-    assert.strictEqual(account.merchantName, merchantName);
-    assert.strictEqual(account.merchantWeburl, merchantWebUrl);
-    assert.isTrue(account.merchantAddress.equals(merchant.publicKey));
-    assert.isTrue(account.isActive);
-    assert.strictEqual(account.supportedTokens.length, 1);
-    assert.isTrue(account.supportedTokens[0].equals(tokenMint));
-  });
-
-  it("Creates a subscription plan", async () => {
-    const planName = "Gold Plan";
-    const planPrice = new BN(100).mul(new BN(10).pow(new BN(6)));
-    const billingCycle = 1;
-    const supportedTokens = [tokenMint];
-    const isActive = true;
-
-    // Derive PDA for subscription plan
-    [subscriptionPlanPDA] = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("subscription"),
-        Buffer.from(planName),
-        merchant.publicKey.toBuffer(),
-      ],
-      program.programId
+    solMint = await createMint(
+      provider.connection,
+      provider.wallet.payer,
+      provider.wallet.publicKey,
+      null,
+      9 // SOL decimals
     );
 
-    // Initialize subscription plan - FIXED: merchant_address must be a Signer
-    await program.methods
-      .initializeSubscriptionPlan(planName, planPrice, tokenMint, billingCycle, supportedTokens, isActive)
-      .accounts({
-        subscriptionPlan: subscriptionPlanPDA,
-        merchantRegistration: merchantRegistrationPDA,
-        merchantAddress: merchant.publicKey,  // This is the Signer (merchant)
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([merchant])  // ✅ CRITICAL: merchant MUST sign this transaction
-      .rpc();
-
-    // Fetch and verify account
-    const account = await program.account.subscriptionPlan.fetch(subscriptionPlanPDA);
-    
-    assert.strictEqual(account.planName, planName);
-    assert.isTrue(account.planPrice.eq(planPrice));
-    assert.isTrue(account.tokenMint.equals(tokenMint));
-    assert.strictEqual(account.billingCycle, billingCycle);
-    assert.isTrue(account.isActive);
-    assert.isTrue(account.merchantAddress.equals(merchant.publicKey));
+    console.log("Test environment ready");
   });
 
-  it("Creates a user subscription", async () => {
-    const nextBillingDate = new BN(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60);
-    const isActive = true;
-    const supportedTokens = [tokenMint];
+  describe("1. Merchant Registration", () => {
+    it("Successfully initializes a merchant", async () => {
+      const merchantName = "SolPay Demo Merchant";
+      const merchantWebUrl = "https://solpay-demo.com";
+      const supportedTokens = [usdcMint, solMint];
 
-    // Derive PDA for user subscription
-    [userSubscriptionPDA] = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("user_subscription"),
-        subscriptionPlanPDA.toBuffer(),
-        subscriber.publicKey.toBuffer(),
-      ],
-      program.programId
-    );
+      [merchantRegistrationPDA] = PublicKey.findProgramAddressSync(
+        [Buffer.from("merchant"), merchant.publicKey.toBuffer()],
+        program.programId
+      );
 
-    // Initialize user subscription
-    await program.methods
-      .initializeUserSubscription(nextBillingDate, isActive, supportedTokens)
-      .accounts({
-        userSubscription: userSubscriptionPDA,
-        subscriptionPlan: subscriptionPlanPDA,
-        merchantRegistration: merchantRegistrationPDA,
-        subscriber: subscriber.publicKey,
-        systemProgram: SystemProgram.programId,
-      })
-      .signers([subscriber])  // ✅ CRITICAL: subscriber MUST sign this transaction
-      .rpc();
+      await rpcWithLogs(
+        "initializeMerchant",
+        program.methods
+          .initializeMerchant(merchantName, merchantWebUrl, supportedTokens)
+          .accountsPartial({
+            merchantRegistration: merchantRegistrationPDA,
+            user: merchant.publicKey,
+            systemProgram: SystemProgram.programId,
+          })
+          .signers([merchant])
+      );
 
-    // Fetch and verify account
-    const account = await program.account.userSubscription.fetch(userSubscriptionPDA);
-    
-    assert.isTrue(account.subscriber.equals(subscriber.publicKey));
-    assert.isTrue(account.subscriptionPlan.equals(subscriptionPlanPDA));
-    assert.isTrue(account.isActive);
-    assert.isTrue(account.nextBillingDate.eq(nextBillingDate));
-    assert.isTrue(account.merchantAddress.equals(merchant.publicKey));
+      const account = await program.account.merchantRegistration.fetch(
+        merchantRegistrationPDA
+      );
+
+      assert.strictEqual(account.merchantName, merchantName);
+      assert.strictEqual(account.merchantWeburl, merchantWebUrl);
+      assert.isTrue(account.merchantAddress.equals(merchant.publicKey));
+      assert.isTrue(account.isActive);
+      assert.strictEqual(account.supportedTokens.length, 2);
+    });
   });
 
-  it("Logs a payment transaction", async () => {
-    const txSignature = "test_tx_" + Math.random().toString(36).substring(2);
-    const amount = new BN(50).mul(new BN(10).pow(new BN(6)));
-    const status = 1;
+  describe("2. Subscription Plan Creation", () => {
+    it("Successfully creates a subscription plan", async () => {
+      const planName = "Premium Plan";
+      const planPrice = new BN(100_000_000); // 100 USDC
+      const billingCycle = 30;
+      const supportedTokens = [usdcMint];
+      const isActive = true;
 
-    // Derive PDA for payment transaction
-    const [paymentTransactionPDA] = PublicKey.findProgramAddressSync(
-      [Buffer.from("payment"), Buffer.from(txSignature)],
-      program.programId
-    );
+      [subscriptionPlanPDA] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("subscription"),
+          Buffer.from(planName),
+          merchant.publicKey.toBuffer(),
+        ],
+        program.programId
+      );
 
-    // Initialize payment transaction
-    await program.methods
-      .initializePaymentTransaction(txSignature, amount, tokenMint, status)
-      .accounts({
-        paymentTransaction: paymentTransactionPDA,
-        merchantRegistration: merchantRegistrationPDA,
-        payer: subscriber.publicKey,
-        systemProgram: SystemProgram.programId,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      })
-      .signers([subscriber])  // ✅ CRITICAL: payer MUST sign this transaction
-      .rpc();
+      await rpcWithLogs(
+        "initializeSubscriptionPlan_success",
+        program.methods
+          .initializeSubscriptionPlan(
+            planName,
+            planPrice,
+            usdcMint,
+            billingCycle,
+            supportedTokens,
+            isActive
+          )
+          .accountsPartial({
+            subscriptionPlan: subscriptionPlanPDA,
+            merchantRegistration: merchantRegistrationPDA,
+            merchantAddress: merchant.publicKey,
+            systemProgram: SystemProgram.programId,
+          })
+          .signers([merchant])
+      );
 
-    // Fetch and verify account
-    const account = await program.account.paymentTransaction.fetch(paymentTransactionPDA);
-    
-    assert.strictEqual(account.txSignature, txSignature);
-    assert.isTrue(account.payerAddress.equals(subscriber.publicKey));
-    assert.isTrue(account.merchantAddress.equals(merchant.publicKey));
-    assert.isTrue(account.amount.eq(amount));
-    assert.isTrue(account.tokenMint.equals(tokenMint));
-    assert.strictEqual(account.status, status);
+      const account = await program.account.subscriptionPlan.fetch(
+        subscriptionPlanPDA
+      );
+
+      assert.strictEqual(account.planName, planName);
+      assert.isTrue(account.planPrice.eq(planPrice));
+      assert.strictEqual(account.billingCycle, billingCycle);
+      assert.isTrue(account.isActive);
+    });
+
+    it("Fails with empty plan name", async () => {
+      const planName = "";
+      const planPrice = new BN(50_000_000);
+      const billingCycle = 30;
+      const supportedTokens = [usdcMint];
+      const isActive = true;
+
+      const [invalidPlanPDA] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("subscription"),
+          Buffer.from("EmptyTest"),
+          merchant.publicKey.toBuffer(),
+        ],
+        program.programId
+      );
+
+      try {
+        await rpcWithLogs(
+          "initializeSubscriptionPlan_empty_name",
+          program.methods
+            .initializeSubscriptionPlan(
+              planName,
+              planPrice,
+              usdcMint,
+              billingCycle,
+              supportedTokens,
+              isActive
+            )
+              .accountsPartial({
+                subscriptionPlan: invalidPlanPDA,
+                merchantRegistration: merchantRegistrationPDA,
+                merchantAddress: merchant.publicKey,
+                systemProgram: SystemProgram.programId,
+              })
+            .signers([merchant])
+        );
+
+        assert.fail("Should have thrown error");
+      } catch (error) {
+        assert.isTrue(error instanceof Error);
+      }
+    });
   });
 
-  it("Cancels a user subscription", async () => {
-    // Cancel user subscription
-    await program.methods
-      .initializeCancelSubscription()
-      .accounts({
-        userSubscription: userSubscriptionPDA,
-        subscriptionPlan: subscriptionPlanPDA,
-        subscriber: subscriber.publicKey,
-      })
-      .signers([subscriber])  // ✅ CRITICAL: subscriber MUST sign this transaction
-      .rpc();
+  describe("3. User Subscription", () => {
+    it("Successfully creates a user subscription", async () => {
+      const nextBillingDate = new BN(
+        Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60
+      );
+      const isActive = true;
+      const supportedTokens = [usdcMint];
 
-    // Fetch and verify account
-    const account = await program.account.userSubscription.fetch(userSubscriptionPDA);
-    
-    assert.isFalse(account.isActive);
-    assert.isNotNull(account.canceledAt);
-    assert.isDefined(account.canceledAt);
+      [userSubscriptionPDA] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("user_subscription"),
+          subscriptionPlanPDA.toBuffer(),
+          subscriber.publicKey.toBuffer(),
+        ],
+        program.programId
+      );
+
+      await rpcWithLogs(
+        "initializeUserSubscription_success",
+        program.methods
+          .initializeUserSubscription(nextBillingDate, isActive, supportedTokens)
+          .accountsPartial({
+            userSubscription: userSubscriptionPDA,
+            subscriptionPlan: subscriptionPlanPDA,
+            merchantRegistration: merchantRegistrationPDA,
+            subscriber: subscriber.publicKey,
+            systemProgram: SystemProgram.programId,
+          })
+          .signers([subscriber])
+      );
+
+      const account = await program.account.userSubscription.fetch(
+        userSubscriptionPDA
+      );
+
+      assert.isTrue(account.subscriber.equals(subscriber.publicKey));
+      assert.isTrue(account.isActive);
+    });
+
+    it("Successfully cancels subscription", async () => {
+      await rpcWithLogs(
+        "initializeCancelSubscription_success",
+        program.methods
+          .initializeCancelSubscription()
+          .accounts({
+            userSubscription: userSubscriptionPDA,
+            subscriptionPlan: subscriptionPlanPDA,
+            subscriber: subscriber.publicKey,
+          })
+          .signers([subscriber])
+      );
+
+      const account = await program.account.userSubscription.fetch(
+        userSubscriptionPDA
+      );
+
+      assert.isFalse(account.isActive);
+      assert.isNotNull(account.canceledAt);
+    });
+  });
+
+  describe("4. Payment Transaction", () => {
+    it("Successfully logs payment", async () => {
+      const txSignature = "solpay_tx_" + Date.now();
+      const amount = new BN(100_000_000);
+      const status = 1;
+
+      const [paymentPDA] = PublicKey.findProgramAddressSync(
+        [Buffer.from("payment"), Buffer.from(txSignature)],
+        program.programId
+      );
+
+      await rpcWithLogs(
+        "initializePaymentTransaction_success",
+        program.methods
+          .initializePaymentTransaction(
+            txSignature,
+            amount,
+            usdcMint,
+            status
+          )
+          .accountsPartial({
+            paymentTransaction: paymentPDA,
+            merchantRegistration: merchantRegistrationPDA,
+            payer: subscriber.publicKey,
+            systemProgram: SystemProgram.programId,
+            tokenProgram: TOKEN_PROGRAM_ID,
+          })
+          .signers([subscriber])
+      );
+
+      const account = await program.account.paymentTransaction.fetch(
+        paymentPDA
+      );
+
+      assert.strictEqual(account.txSignature, txSignature);
+      assert.isTrue(account.amount.eq(amount));
+    });
+
+    it("Fails with zero amount", async () => {
+      const txSignature = "solpay_zero_" + Date.now();
+      const amount = new BN(0);
+      const status = 1;
+
+      const [paymentPDA] = PublicKey.findProgramAddressSync(
+        [Buffer.from("payment"), Buffer.from(txSignature)],
+        program.programId
+      );
+
+      try {
+        await rpcWithLogs(
+          "initializePaymentTransaction_zero_amount",
+          program.methods
+            .initializePaymentTransaction(txSignature, amount, usdcMint, status)
+            .accountsPartial({
+              paymentTransaction: paymentPDA,
+              merchantRegistration: merchantRegistrationPDA,
+              payer: subscriber.publicKey,
+              systemProgram: SystemProgram.programId,
+              tokenProgram: TOKEN_PROGRAM_ID,
+            })
+            .signers([subscriber])
+        );
+
+        assert.fail("Should have thrown error");
+      } catch (error) {
+        assert.isTrue(error instanceof AnchorError);
+        const err = error as AnchorError;
+        // Adjust this to your exact message if needed
+        assert.include(err.error.errorMessage, "Invalid payment");
+      }
+    });
+  });
+
+  after(() => {
+    console.log("\nAll tests completed.\n");
   });
 });

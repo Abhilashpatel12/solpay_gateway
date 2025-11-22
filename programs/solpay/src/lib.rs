@@ -5,7 +5,7 @@ pub mod errors;
 pub mod instructions;
 pub mod state;
 
-declare_id!("GJyc6iK1GVkLUWr3Vpyj9wfnRAtmsxHKUzXwM7CW3CWH");
+declare_id!("EVBgMcsQdMqHrm2KMscsPUKUsFAcbpJUkAjBSWHGwL8A");
 
 #[program]
 pub mod solpay_smartcontract {
