@@ -5,3 +5,29 @@ target
 node_modules
 test-ledger
 .yarn
+package-lock.json
+
+# Sensitive and local environment
+# Solana / Anchor keypairs and other private key files
+**/*-keypair.json
+**/*.keypair
+*.key
+*.pem
+*.p8
+*.secret
+*.env
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Build artifacts and local dev
+.next/
+/.cache/
+dist/
+
+# Rust / Anchor build artifacts for programs
+programs/**/target/
+programs/**/build/
+programs/**/pkg/
+
