@@ -7,7 +7,7 @@ export function AccountUiBalance({ address }: { address: Address }) {
 
   return (
     <h1 className="text-5xl font-bold cursor-pointer" onClick={() => query.refetch()}>
-      {query.data?.value ? <AccountUiBalanceSol balance={query.data?.value} /> : '...'} SOL
+      {typeof query.data === 'number' ? <AccountUiBalanceSol balance={query.data} /> : '...'} SOL
     </h1>
   )
 }

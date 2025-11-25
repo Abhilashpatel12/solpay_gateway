@@ -13,11 +13,11 @@ export function useMerchantPlanTransactions(merchantAddress?: string, planPublic
       const program = getProgram(wallet)
 
       try {
-        const allTransactions = await program.account.paymentTransaction.all()
+        const allTransactions = await (program.account as any).paymentTransaction.all()
 
         return allTransactions
-          .filter((account) => account.account.merchantAddress.toString() === merchantAddress)
-          .map((account) => ({
+          .filter((account: any) => account.account.merchantAddress.toString() === merchantAddress)
+          .map((account: any) => ({
             publicKey: account.publicKey,
             ...account.account,
             amount: account.account.amount.toNumber(),

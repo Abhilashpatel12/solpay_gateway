@@ -16,22 +16,22 @@ export function useInitializeMerchant() {
         throw new Error('Wallet not connected')
       }
 
-      const program = getProgram(wallet)
+      const program = getProgram(wallet) as any
       const [merchantPda] = getMerchantPda(wallet.publicKey)
 
       const supportedTokens = draft.supportedTokens.map((token) => new PublicKey(token))
 
       return program.methods
-        .initializeMerchant(
+        .initialize_merchant(
           draft.merchantName,
           draft.merchantWeburl,
           supportedTokens
         )
         .accounts({
-          merchantRegistration: merchantPda,
+          merchant_registration: merchantPda,
           user: wallet.publicKey,
-          systemProgram: SystemProgram.programId,
-        })
+          system_program: SystemProgram.programId,
+        } as any)
         .rpc()
     },
     onSuccess: (signature) => {

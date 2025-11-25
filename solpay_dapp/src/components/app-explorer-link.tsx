@@ -7,6 +7,8 @@ type ExplorerLinkProps = {
   path?: string
   address?: string
   tx?: string
+  transaction?: string
+  block?: string
   className?: string
   label?: string
 }
@@ -15,6 +17,8 @@ export function AppExplorerLink({
   path,
   address,
   tx,
+  transaction,
+  block,
   label,
   className,
 }: ExplorerLinkProps) {
@@ -23,8 +27,10 @@ export function AppExplorerLink({
   const getUrl = () => {
     const baseUrl = 'https://explorer.solana.com'
     const clusterParam = cluster.network === 'mainnet-beta' ? '' : `?cluster=${cluster.network}`
-    
-    if (tx) return `${baseUrl}/tx/${tx}${clusterParam}`
+    // support multiple prop names from various call sites
+    const txId = tx ?? transaction
+    if (txId) return `${baseUrl}/tx/${txId}${clusterParam}`
+    if (block) return `${baseUrl}/block/${block}${clusterParam}`
     if (address) return `${baseUrl}/address/${address}${clusterParam}`
     if (path) return `${baseUrl}/${path}${clusterParam}`
     return baseUrl

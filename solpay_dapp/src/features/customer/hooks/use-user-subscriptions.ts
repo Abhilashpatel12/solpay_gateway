@@ -19,7 +19,7 @@ export function useUserSubscriptions() {
         
         // Offset = 8
         
-        const subscriptions = await program.account.userSubscription.all([
+        const subscriptions = await (program.account as any).userSubscription.all([
           {
             memcmp: {
               offset: 8,
@@ -34,9 +34,9 @@ export function useUserSubscriptions() {
         // Let's fetch plan details individually for now.
         
         const enrichedSubscriptions = await Promise.all(
-          subscriptions.map(async (sub) => {
+          subscriptions.map(async (sub: any) => {
             try {
-              const planAccount = await program.account.subscriptionPlan.fetch(sub.account.subscriptionPlan)
+              const planAccount = await (program.account as any).subscriptionPlan.fetch(sub.account.subscriptionPlan)
               return {
                 publicKey: sub.publicKey,
                 account: sub.account,

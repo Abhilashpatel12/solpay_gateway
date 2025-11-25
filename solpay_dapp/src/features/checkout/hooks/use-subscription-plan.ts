@@ -16,7 +16,7 @@ export function useSubscriptionPlan(merchantAddress: string, planName: string) {
       try {
         const merchantPubkey = new PublicKey(merchantAddress)
         const [planPda] = getSubscriptionPlanPda(planName, merchantPubkey)
-        const planAccount = await program.account.subscriptionPlan.fetch(planPda)
+        const planAccount = await (program.account as any).subscriptionPlan.fetch(planPda)
         return {
           ...planAccount,
           publicKey: planPda,

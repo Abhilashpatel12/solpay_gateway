@@ -57,7 +57,7 @@ export function useSubscribe() {
       // surface a clear error instead of letting the program call fail later.
       try {
         // If fetch succeeds, subscription already exists
-        await (program.account as any).userSubscription.fetch(userSubscriptionPda)
+        await (program.account as any).user_subscription.fetch(userSubscriptionPda)
         throw new Error('Already subscribed to this plan')
       } catch (err: any) {
         // If the account does not exist, Anchor's fetch throws an error; we only
@@ -72,8 +72,8 @@ export function useSubscribe() {
       }
 
       // Preflight checks
-      await program.account.merchantRegistration.fetch(merchantPda)
-      await program.account.subscriptionPlan.fetch(planPdaPub)
+      await (program.account as any).merchant_registration.fetch(merchantPda)
+      await (program.account as any).subscription_plan.fetch(planPdaPub)
 
       // Calculate next billing date
       const now = Math.floor(Date.now() / 1000)
@@ -85,15 +85,15 @@ export function useSubscribe() {
       const transaction = new Transaction()
 
       // 1. Create the subscription instruction
-      const subscriptionIx = await program.methods
-        .initializeUserSubscription(nextBillingDate, true, [])
+      const subscriptionIx = await (program.methods as any)
+        .initialize_user_subscription(nextBillingDate, true, [])
         .accounts({
-          userSubscription: userSubscriptionPda,
-          subscriptionPlan: planPda,
-          merchantRegistration: merchantPda,
+          user_subscription: userSubscriptionPda,
+          subscription_plan: planPda,
+          merchant_registration: merchantPda,
           subscriber: wallet.publicKey,
-          systemProgram: SystemProgram.programId,
-        })
+          system_program: SystemProgram.programId,
+        } as any)
         .instruction()
 
       transaction.add(subscriptionIx)

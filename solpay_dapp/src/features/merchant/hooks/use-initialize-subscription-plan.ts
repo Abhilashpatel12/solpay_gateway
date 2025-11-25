@@ -29,7 +29,7 @@ export function useInitializeSubscriptionPlan() {
       const supportedTokens: PublicKey[] = []
 
       return program.methods
-        .initializeSubscriptionPlan(
+        .initialize_subscription_plan(
           draft.planName,
           new BN(draft.planPriceLamports),
           nativeMint,

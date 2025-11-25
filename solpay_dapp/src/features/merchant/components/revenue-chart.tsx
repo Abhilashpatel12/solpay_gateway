@@ -57,7 +57,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(value) => `${Number(value).toLocaleString()} SOL`}
-                  domain={[0, (dataMax: number) => Math.max(1, Number((dataMax || 0) * 1.2).toFixed(2))]}
+                  domain={[0, (dataMax: number) => Math.max(1, Number(((dataMax || 0) * 1.2).toFixed(2)))]}
                 />
                 <Tooltip
                   cursor={{ fill: 'rgba(124,58,237,0.06)' }}

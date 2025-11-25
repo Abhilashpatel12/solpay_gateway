@@ -15,7 +15,7 @@ export function useMerchant() {
       const [merchantPda] = getMerchantPda(wallet.publicKey)
 
       try {
-        const merchantAccount = await program.account.merchantRegistration.fetch(merchantPda)
+        const merchantAccount = await (program.account as any).merchantRegistration.fetch(merchantPda)
         return merchantAccount
       } catch {
         return null

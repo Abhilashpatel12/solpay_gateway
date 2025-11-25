@@ -4,7 +4,7 @@ import type { Transaction } from '@solana/web3.js'
 import { getConnection } from '@/lib/solana/connection'
 import { SOLPAY_PROGRAM_ID } from '@/lib/solana/constants'
 import idl from '@/idl/solpay_smartcontract.json'
-import type { SolpaySmartcontract } from '@/types/solpay_smartcontract'
+import { SolpaySmartcontract } from '@/types/solpay_smartcontract'
 
 export type WalletLike = {
   publicKey: Adapter['publicKey']
@@ -35,5 +35,5 @@ export function getProgram(wallet?: WalletLike) {
   if (SOLPAY_PROGRAM_ID) {
     (idl as any).address = SOLPAY_PROGRAM_ID.toBase58()
   }
-  return new Program(idl as SolpaySmartcontract, provider)
+  return new Program<SolpaySmartcontract>(idl as any, provider)
 }

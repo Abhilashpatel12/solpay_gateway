@@ -41,7 +41,7 @@ export default function PublicOneTimePaymentPage() {
   const [error, setError] = useState<string | null>(null)
 
   const { mutate: pay, isPending: isPayPending, isSuccess: isPaySuccess } = useOneTimePayment()
-  const { mutate: subscribe, isLoading: isSubscribePending, isSuccess: isSubscribeSuccess } = useSubscribe()
+  const { mutate: subscribe, isPending: isSubscribePending, isSuccess: isSubscribeSuccess } = useSubscribe()
 
   useEffect(() => {
     if (!token) {
@@ -118,7 +118,7 @@ export default function PublicOneTimePaymentPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-baseline justify-center gap-2">
-            <span className="text-4xl font-bold tracking-tight">{formatSol(lamportsToSol(amountLamports))}</span>
+            <span className="text-4xl font-bold tracking-tight">{formatSol(lamportsToSol(amountLamports || 0))}</span>
             <span className="text-muted-foreground">SOL</span>
           </div>
           <div className="space-y-2 text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
@@ -149,7 +149,9 @@ export default function PublicOneTimePaymentPage() {
           <Button
             className="w-full"
             size="lg"
-            disabled={isPayPending || isSubscribePending}
+            disabled={
+              isPayPending || isSubscribePending || (tokenType !== 'subscribe' && typeof amountLamports !== 'number')
+            }
             onClick={() => {
               if (tokenType === 'subscribe') {
                 // construct a minimal plan object that useSubscribe expects
@@ -162,6 +164,10 @@ export default function PublicOneTimePaymentPage() {
                 }
                 subscribe(planForMutation)
               } else {
+                if (typeof amountLamports !== 'number') {
+                  setError('Invalid amount for one-time payment.')
+                  return
+                }
                 pay({ merchantAddress, amountLamports })
               }
             }}

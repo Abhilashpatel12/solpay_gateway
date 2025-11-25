@@ -20,7 +20,7 @@ export function useTransferSolMutation({ address }: { address: PublicKey }) {
 
       const transaction = new Transaction().add(
         SystemProgram.transfer({
-          fromPubkey: publicKey,
+          fromPubkey: wallet.publicKey as PublicKey,
           toPubkey: input.destination,
           lamports: input.amount * LAMPORTS_PER_SOL,
         })

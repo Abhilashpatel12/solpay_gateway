@@ -26,7 +26,7 @@ export function useMerchantSubscriptions(merchantAddress?: string) {
         
         // Offset = 8 + 32 + 32 + 8 + 8 + 1 = 89
         
-        const subscriptions = await program.account.userSubscription.all([
+        const subscriptions = await (program.account as any).user_subscription.all([
           {
             memcmp: {
               offset: 89,
@@ -35,7 +35,7 @@ export function useMerchantSubscriptions(merchantAddress?: string) {
           },
         ])
 
-        return subscriptions.map((sub) => ({
+        return subscriptions.map((sub: any) => ({
           publicKey: sub.publicKey,
           ...sub.account,
         }))

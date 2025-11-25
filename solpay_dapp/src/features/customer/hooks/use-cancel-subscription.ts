@@ -18,13 +18,13 @@ export function useCancelSubscription() {
     }) => {
       if (!wallet.publicKey) throw new Error('Wallet not connected')
 
-      const program = getProgram(wallet)
+      const program = getProgram(wallet) as any
 
       const tx = await program.methods
-        .initializeCancelSubscription()
+        .initialize_cancel_subscription()
         .accounts({
-          userSubscription: userSubscriptionPda,
-          subscriptionPlan: subscriptionPlanPda,
+          user_subscription: userSubscriptionPda,
+          subscription_plan: subscriptionPlanPda,
           subscriber: wallet.publicKey,
         })
         .rpc()

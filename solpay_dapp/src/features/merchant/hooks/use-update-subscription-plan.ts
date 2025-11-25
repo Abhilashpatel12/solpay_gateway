@@ -23,11 +23,11 @@ export function useUpdateSubscriptionPlan() {
       const program = getProgram(wallet)
 
       return program.methods
-        .updateSubscriptionPlan(isActive)
+        .update_subscription_plan(isActive)
         .accounts({
-          subscriptionPlan: planPda,
-          merchantAddress: wallet.publicKey,
-        })
+          subscription_plan: planPda,
+          merchant_address: wallet.publicKey,
+        } as any)
         .rpc()
     },
     onSuccess: () => {
