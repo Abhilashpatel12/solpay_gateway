@@ -1,0 +1,24 @@
+# Ignore Rust/Anchor build artifacts and local secrets for the solpay program
+/target/
+**/target/
+**/build/
+**/pkg/
+
+# Anchor/solana local config
+/.anchor
+/.config/solana
+
+# Keypairs and private keys
+**/*-keypair.json
+**/*.keypair
+*.pem
+*.key
+*.p8
+*.secret
+
+# Env files
+.env*
+
+# Editor
+.vscode/
+.idea/

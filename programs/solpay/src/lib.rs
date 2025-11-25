@@ -23,11 +23,12 @@ pub mod solpay_smartcontract {
     pub fn initialize_payment_transaction(
         ctx: Context<InitializePaymentTransaction>,
         tx_signature: String,
+        tx_signature_hash: [u8; 32],
         amount: u64,
         token_mint: Pubkey,
         status: u8,
     ) -> Result<()> {
-        instructions::initialize_payment_transaction(ctx, tx_signature, amount, token_mint, status)
+        instructions::initialize_payment_transaction(ctx, tx_signature, tx_signature_hash, amount, token_mint, status)
     }
 
     pub fn initialize_subscription_plan(
@@ -63,6 +64,13 @@ pub mod solpay_smartcontract {
         ctx: Context<InitializeCancelSubscription>,
     ) -> Result<()> {
         instructions::initialize_cancel_subscription(ctx)
+    }
+
+    pub fn update_subscription_plan(
+        ctx: Context<UpdateSubscriptionPlan>,
+        is_active: bool,
+    ) -> Result<()> {
+        instructions::update_subscription_plan(ctx, is_active)
     }
 }
 

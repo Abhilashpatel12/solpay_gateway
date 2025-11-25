@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import '@wallet-ui/tailwind/index.css';
+@import './solana-wallet-adapter.css';
+
+:root {
+  color-scheme: dark;
+  --background: #050608;
+  --foreground: #f4f5f7;
+  --card: rgba(25, 26, 35, 0.85);
+  --card-foreground: #f4f5f7;
+  --border: rgba(255, 255, 255, 0.08);
+  --muted: rgba(255, 255, 255, 0.6);
+  --gradient-start: #9945ff;
+  --gradient-end: #14f195;
+  --shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+* {
+  font-feature-settings: 'liga' on, 'calt' on;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--background);
+  background-image: radial-gradient(circle at 10% 20%, rgba(153, 69, 255, 0.12), transparent 40%),
+    radial-gradient(circle at 90% 10%, rgba(20, 241, 149, 0.15), transparent 35%),
+    radial-gradient(circle at 50% 50%, rgba(10, 11, 13, 0.85), rgba(10, 11, 13, 0.95));
+  color: var(--foreground);
+  font-family: var(--font-dm-sans), 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+}
+
+@layer base {
+  * {
+    @apply border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#14F195]/60;
+  }
+
+  ::selection {
+    @apply bg-[#9945FF]/40 text-white;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold text-white;
+  }
+}
+
+.glass-panel {
+  @apply rounded-3xl border border-white/10 bg-neutral-800/60;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  backdrop-filter: blur(12px);
+}
+
+.glow-ring {
+  position: relative;
+}
+
+.glow-ring::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(153, 69, 255, 0.6), rgba(20, 241, 149, 0.6));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.noise-bg {
+  position: relative;
+}
+
+.noise-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="400" height="400" filter="url(%23noise)" opacity="0.04"/%3E%3C/svg%3E');
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.hero-gradient {
+  background-image: radial-gradient(circle at 20% 20%, rgba(153, 69, 255, 0.35), transparent 50%),
+    radial-gradient(circle at 80% 0%, rgba(20, 241, 149, 0.35), transparent 45%),
+    linear-gradient(180deg, rgba(10, 11, 13, 0.6) 0%, rgba(10, 11, 13, 0.95) 100%);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-glow {
+  box-shadow: 0 0 25px rgba(20, 241, 149, 0.18);
+}
+
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}

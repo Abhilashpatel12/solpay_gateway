@@ -1,4 +1,3 @@
-.anchor
 .DS_Store
 target
 **/*.rs.bk
@@ -30,4 +29,36 @@ dist/
 programs/**/target/
 programs/**/build/
 programs/**/pkg/
+
+# local envs & secrets
+/.env
+**/.env
+**/.env.local
+**/*.secret
+
+# dApp (local dev)
+solpay_dapp/.env
+solpay_dapp/.env.*
+solpay_dapp/.next/
+solpay_dapp/node_modules/
+solpay_dapp/out/
+solpay_dapp/.vercel/
+solpay_dapp/*.keypair
+solpay_dapp/**/*.keypair
+solpay_dapp/*.keypair.json
+solpay_dapp/**/*.keypair.json
+solpay_dapp/*.pem
+solpay_dapp/*.p8
+
+# Solana / Anchor programs
+programs/**/target/
+programs/**/build/
+programs/**/pkg/
+programs/**/*.keypair
+/.anchor
+/.config/solana
+
+# editor/IDE
+.vscode/
+.idea/
 

@@ -1,0 +1,630 @@
+{
+  "address": "EVBgMcsQdMqHrm2KMscsPUKUsFAcbpJUkAjBSWHGwL8A",
+  "metadata": {
+    "name": "solpay_smartcontract",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "initialize_cancel_subscription",
+      "discriminator": [
+        154,
+        180,
+        189,
+        36,
+        164,
+        2,
+        141,
+        212
+      ],
+      "accounts": [
+        {
+          "name": "user_subscription",
+          "writable": true
+        },
+        {
+          "name": "subscription_plan"
+        },
+        {
+          "name": "subscriber",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_merchant",
+      "discriminator": [
+        7,
+        90,
+        74,
+        38,
+        99,
+        111,
+        142,
+        77
+      ],
+      "accounts": [
+        {
+          "name": "merchant_registration",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  114,
+                  99,
+                  104,
+                  97,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "merchant_name",
+          "type": "string"
+        },
+        {
+          "name": "merchant_weburl",
+          "type": "string"
+        },
+        {
+          "name": "supported_tokens",
+          "type": {
+            "vec": "pubkey"
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize_payment_transaction",
+      "discriminator": [
+        178,
+        80,
+        74,
+        193,
+        54,
+        252,
+        121,
+        205
+      ],
+      "accounts": [
+        {
+          "name": "payment_transaction",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  121,
+                  109,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "tx_signature_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "merchant_registration"
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "tx_signature",
+          "type": "string"
+        },
+        {
+          "name": "tx_signature_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "token_mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "status",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "initialize_subscription_plan",
+      "discriminator": [
+        222,
+        51,
+        240,
+        12,
+        204,
+        39,
+        119,
+        105
+      ],
+      "accounts": [
+        {
+          "name": "subscription_plan",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  117,
+                  98,
+                  115,
+                  99,
+                  114,
+                  105,
+                  112,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "plan_name"
+              },
+              {
+                "kind": "account",
+                "path": "merchant_address"
+              }
+            ]
+          }
+        },
+        {
+          "name": "merchant_registration"
+        },
+        {
+          "name": "merchant_address",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "plan_name",
+          "type": "string"
+        },
+        {
+          "name": "plan_price",
+          "type": "u64"
+        },
+        {
+          "name": "token_mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "billing_cycle",
+          "type": "u8"
+        },
+        {
+          "name": "supported_tokens",
+          "type": {
+            "vec": "pubkey"
+          }
+        },
+        {
+          "name": "is_active",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "initialize_user_subscription",
+      "discriminator": [
+        202,
+        177,
+        36,
+        216,
+        151,
+        191,
+        19,
+        83
+      ],
+      "accounts": [
+        {
+          "name": "user_subscription",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  115,
+                  117,
+                  98,
+                  115,
+                  99,
+                  114,
+                  105,
+                  112,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "subscription_plan"
+              },
+              {
+                "kind": "account",
+                "path": "subscriber"
+              }
+            ]
+          }
+        },
+        {
+          "name": "subscription_plan"
+        },
+        {
+          "name": "merchant_registration"
+        },
+        {
+          "name": "subscriber",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "next_billing_date",
+          "type": "i64"
+        },
+        {
+          "name": "is_active",
+          "type": "bool"
+        },
+        {
+          "name": "supported_tokens",
+          "type": {
+            "vec": "pubkey"
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_subscription_plan",
+      "discriminator": [
+        27,
+        73,
+        200,
+        227,
+        133,
+        93,
+        78,
+        133
+      ],
+      "accounts": [
+        {
+          "name": "subscription_plan",
+          "writable": true
+        },
+        {
+          "name": "merchant_address",
+          "signer": true,
+          "relations": [
+            "subscription_plan"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "is_active",
+          "type": "bool"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "MerchantRegistration",
+      "discriminator": [
+        52,
+        168,
+        1,
+        47,
+        65,
+        242,
+        88,
+        60
+      ]
+    },
+    {
+      "name": "PaymentTransaction",
+      "discriminator": [
+        70,
+        221,
+        6,
+        3,
+        5,
+        162,
+        149,
+        177
+      ]
+    },
+    {
+      "name": "SubscriptionPlan",
+      "discriminator": [
+        157,
+        153,
+        188,
+        46,
+        234,
+        53,
+        172,
+        124
+      ]
+    },
+    {
+      "name": "UserSubscription",
+      "discriminator": [
+        108,
+        179,
+        18,
+        43,
+        167,
+        65,
+        185,
+        163
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "PaymentTransactionAlreadyExists",
+      "msg": "Payment transaction already exists."
+    },
+    {
+      "code": 6001,
+      "name": "InvalidPaymentTransactionDetails",
+      "msg": "Invalid payment transaction details provided."
+    },
+    {
+      "code": 6002,
+      "name": "PaymentTransactionLimitReached",
+      "msg": "Payment transaction limit reached."
+    },
+    {
+      "code": 6003,
+      "name": "UnauthorizedPaymentTransactionAccess",
+      "msg": "Unauthorized access to payment transaction data."
+    },
+    {
+      "code": 6004,
+      "name": "PaymentTransactionNotFound",
+      "msg": "Payment transaction not found."
+    },
+    {
+      "code": 6005,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds for the transaction."
+    }
+  ],
+  "types": [
+    {
+      "name": "MerchantRegistration",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merchant_name",
+            "type": "string"
+          },
+          {
+            "name": "merchant_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "merchant_weburl",
+            "type": "string"
+          },
+          {
+            "name": "supported_tokens",
+            "type": {
+              "vec": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentTransaction",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "tx_signature",
+            "type": "string"
+          },
+          {
+            "name": "payer_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "merchant_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "status",
+            "type": "u8"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SubscriptionPlan",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "plan_name",
+            "type": "string"
+          },
+          {
+            "name": "plan_price",
+            "type": "u64"
+          },
+          {
+            "name": "token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "billing_cycle",
+            "type": "u8"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "merchant_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "supported_tokens",
+            "type": {
+              "vec": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserSubscription",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "subscriber",
+            "type": "pubkey"
+          },
+          {
+            "name": "subscription_plan",
+            "type": "pubkey"
+          },
+          {
+            "name": "start_date",
+            "type": "i64"
+          },
+          {
+            "name": "next_billing_date",
+            "type": "i64"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          },
+          {
+            "name": "merchant_address",
+            "type": "pubkey"
+          },
+          {
+            "name": "supported_tokens",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "canceled_at",
+            "type": {
+              "option": "i64"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

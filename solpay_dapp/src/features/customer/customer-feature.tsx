@@ -1,0 +1,18 @@
+import { SubscriptionPlanSelector } from '@/features/customer/components/subscription-plan-selector'
+import { UserSubscriptionsPanel } from '@/features/customer/components/user-subscriptions-panel'
+import { PaymentReceiptsTable } from '@/features/customer/components/payment-receipts-table'
+
+export function CustomerFeature() {
+  return (
+    <div className="space-y-6">
+      <header className="space-y-2">
+        <p className="text-sm uppercase tracking-wide text-muted-foreground">Customer Console</p>
+        <h1 className="text-3xl font-semibold tracking-tight">My subscriptions</h1>
+      </header>
+
+      <section>
+        <UserSubscriptionsPanel />
+      </section>
+    </div>
+  )
+}
