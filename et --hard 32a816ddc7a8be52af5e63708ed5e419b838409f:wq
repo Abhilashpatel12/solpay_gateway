@@ -1,0 +1,35 @@
+[33mcommit 32a816ddc7a8be52af5e63708ed5e419b838409f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfrontend-stable[m[33m)[m
+Author: Abhilashpatel12 <Abhilashpatel12>
+Date:   Sun Nov 30 08:06:51 2025 +0000
+
+    fixed the accounts related bugs
+
+[33mcommit 33698bd15369eb34d04e61bc8719a7a8843d2dd6[m
+Author: Abhilashpatel12 <Abhilashpatel12>
+Date:   Sun Nov 30 08:06:34 2025 +0000
+
+    fixed the accounts related bugs
+
+[33mcommit 5b1c3da1d3b9251d8f98cbbb5d3e1cd5edc5a954[m
+Author: Mudam Abhilash <114947863+Abhilashpatel12@users.noreply.github.com>
+Date:   Tue Nov 25 16:54:31 2025 +0530
+
+    successfully completed frontend devolpment and integration
+
+[33mcommit c435066a7a3dd27495fbdc8cd9a7e72d112c8746[m
+Author: Abhilashpatel12 <Abhilashpatel12>
+Date:   Tue Nov 25 10:43:23 2025 +0000
+
+    successfully completed building solpay
+
+[33mcommit 14aa99749380e29b46bae86eb77463820cabf137[m
+Author: Abhilashpatel12 <Abhilashpatel12>
+Date:   Sat Nov 22 20:02:52 2025 +0000
+
+    chore: successfully deployed SolPay to devnet and tested
+
+[33mcommit be02e8e6e15ba4c8f91b8e8d71ac8378d1c8c18b[m
+Author: Abhilashpatel12 <abhilashpatel417@gmail.com>
+Date:   Sun Oct 26 20:52:55 2025 +0530
+
+    fixed the errors in the smart contacts

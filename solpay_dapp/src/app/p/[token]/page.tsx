@@ -41,7 +41,7 @@ export default function PublicOneTimePaymentPage() {
   const [error, setError] = useState<string | null>(null)
 
   const { mutate: pay, isPending: isPayPending, isSuccess: isPaySuccess } = useOneTimePayment()
-  const { mutate: subscribe, isLoading: isSubscribePending, isSuccess: isSubscribeSuccess } = useSubscribe()
+  const { mutate: subscribe, isPending: isSubscribePending, isSuccess: isSubscribeSuccess } = useSubscribe()
 
   useEffect(() => {
     if (!token) {
