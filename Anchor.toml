@@ -5,14 +5,11 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
-[programs.localnet]
-solpay_smartcontract = "EVBgMcsQdMqHrm2KMscsPUKUsFAcbpJUkAjBSWHGwL8A"
-
 [programs.devnet]
-solpay_smartcontract = "EVBgMcsQdMqHrm2KMscsPUKUsFAcbpJUkAjBSWHGwL8A"
+solpay_smartcontract = "DWtGtLBsNFYMtGSYYt9LFee4jDdMMNAhz6JvDHyAinXw"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

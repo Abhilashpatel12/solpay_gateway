@@ -1,5 +1,6 @@
 import { assertIsAddress } from 'gill'
 import { useMemo } from 'react'
+import { PublicKey } from '@solana/web3.js'
 import { useParams } from 'next/navigation'
 import { AppHero } from '@/components/app-hero'
 import { ellipsify } from '@/lib/utils'
@@ -29,12 +30,12 @@ export default function AccountFeatureDetail() {
         title={<AccountUiBalance address={address} />}
         subtitle={
           <div className="my-4">
-            <AppExplorerLink address={address.toString()} label={ellipsify(address.toString())} />
+            <AppExplorerLink address={String(address)} label={ellipsify(String(address))} />
           </div>
         }
       >
         <div className="my-4">
-          <AccountUiButtons address={address} />
+          <AccountUiButtons address={new PublicKey(String(address))} />
         </div>
       </AppHero>
       <div className="space-y-8">

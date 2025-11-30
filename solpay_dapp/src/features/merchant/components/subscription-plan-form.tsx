@@ -41,15 +41,15 @@ export function SubscriptionPlanForm({ onSubmit }: SubscriptionPlanFormProps) {
     }
 
     onSubmit?.(draft)
-    console.info('plan draft prepared for initializeSubscriptionPlan:', draft)
+    console.info('plan draft prepared for createSubscriptionPlan:', draft)
   }
 
   return (
     <Card>
-      <CardHeader>
+        <CardHeader>
         <CardTitle>Subscription plans</CardTitle>
         <CardDescription>
-          Capture plan inputs for `initializeSubscriptionPlan`. Billing cycle is expressed in days for the UI but will
+          Capture plan inputs for `createSubscriptionPlan`. Billing cycle is expressed in days for the UI but will
           map to the on-chain `billing_cycle` u8. All plans are created for native SOL payments.
         </CardDescription>
       </CardHeader>
@@ -116,7 +116,7 @@ export function SubscriptionPlanForm({ onSubmit }: SubscriptionPlanFormProps) {
             <Label htmlFor="plan-active">Plan is active</Label>
           </div>
           <Button type="submit" disabled={!isValid} className="w-full">
-            Prepare initializeSubscriptionPlan
+            Create Subscription Plan
           </Button>
         </form>
       </CardContent>

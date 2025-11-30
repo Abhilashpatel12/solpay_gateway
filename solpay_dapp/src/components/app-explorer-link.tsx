@@ -27,7 +27,6 @@ export function AppExplorerLink({
   const getUrl = () => {
     const baseUrl = 'https://explorer.solana.com'
     const clusterParam = cluster.network === 'mainnet-beta' ? '' : `?cluster=${cluster.network}`
-    // support multiple prop names from various call sites
     const txId = tx ?? transaction
     if (txId) return `${baseUrl}/tx/${txId}${clusterParam}`
     if (block) return `${baseUrl}/block/${block}${clusterParam}`

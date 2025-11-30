@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { getProgram } from '@/lib/solana/program'
 import { getUserSubscriptionPda, getMerchantPda } from '@/lib/solana/pdas'
-import { prepareLogPayment } from '@/lib/solana/transactions'
+import { prepareLogPayment, prepareInitializeUserSubscription } from '@/lib/solana/transactions'
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import { toast } from 'sonner'
 import { BN } from '@coral-xyz/anchor'
@@ -60,11 +60,18 @@ export function useSubscribe() {
         await (program.account as any).user_subscription.fetch(userSubscriptionPda)
         throw new Error('Already subscribed to this plan')
       } catch (err: any) {
-        // If the account does not exist, Anchor's fetch throws an error; we only
-        // want to continue when that's the case. Detect by message containing
-        // 'AccountNotFound' or similar; otherwise rethrow.
+        // Anchor error messages vary between environments. If the account does
+        // not exist, Anchor's fetch throws with messages like:
+        //  - "Account does not exist or has no data <PUBKEY>"
+        //  - "AccountNotFound"
+        //  - "Could not find account"
+        // Detect these variants; rethrow on any other unexpected error.
         const msg = String(err?.message || err)
-        if (!/account.*not.*found/i.test(msg) && !/could not find account/i.test(msg) && !/failed to get account/i.test(msg)) {
+        if (!/account.*not.*found/i.test(msg)
+          && !/could not find account/i.test(msg)
+          && !/failed to get account/i.test(msg)
+          && !/does not exist or has no data/i.test(msg)
+          && !/account does not exist/i.test(msg)) {
           // rethrow unexpected errors
           throw err
         }
@@ -84,18 +91,17 @@ export function useSubscribe() {
 
       const transaction = new Transaction()
 
-      // 1. Create the subscription instruction
-      const subscriptionIx = await (program.methods as any)
-        .initialize_user_subscription(nextBillingDate, true, [])
-        .accounts({
-          user_subscription: userSubscriptionPda,
-          subscription_plan: planPda,
-          merchant_registration: merchantPda,
-          subscriber: wallet.publicKey,
-          system_program: SystemProgram.programId,
-        } as any)
-        .instruction()
+      // 1. Create the subscription instruction using the prepare helper
+      const { userSubscriptionPda: userSubPdaFromPrep, builder } = prepareInitializeUserSubscription(wallet, {
+        subscriptionPlan: planPdaPub,
+        merchantRegistration: merchantPda,
+        nextBillingDate,
+        isActive: true,
+        supportedTokens: [],
+      })
 
+      // builder contains accounts and instruction; get the instruction and add
+      const subscriptionIx = await builder.instruction()
       transaction.add(subscriptionIx)
 
       // 2. Create the SOL payment instruction

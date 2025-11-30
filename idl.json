@@ -1,24 +1,88 @@
 {
-  "address": "DWtGtLBsNFYMtGSYYt9LFee4jDdMMNAhz6JvDHyAinXw",
-  "metadata": {
-    "name": "solpay_smartcontract",
-    "version": "0.1.0",
-    "spec": "0.1.0",
-    "description": "Created with Anchor"
-  },
+  "accounts": [
+    {
+      "discriminator": [
+        52,
+        168,
+        1,
+        47,
+        65,
+        242,
+        88,
+        60
+      ],
+      "name": "MerchantRegistration"
+    },
+    {
+      "discriminator": [
+        70,
+        221,
+        6,
+        3,
+        5,
+        162,
+        149,
+        177
+      ],
+      "name": "PaymentTransaction"
+    },
+    {
+      "discriminator": [
+        157,
+        153,
+        188,
+        46,
+        234,
+        53,
+        172,
+        124
+      ],
+      "name": "SubscriptionPlan"
+    },
+    {
+      "discriminator": [
+        108,
+        179,
+        18,
+        43,
+        167,
+        65,
+        185,
+        163
+      ],
+      "name": "UserSubscription"
+    }
+  ],
+  "address": "4f9dLKNiTb58r2v2X842NzjHhREQwV6GuyRusvESbjwi",
+  "errors": [
+    {
+      "code": 6000,
+      "msg": "Merchant is already registered.",
+      "name": "MerchantAlreadyRegistered"
+    },
+    {
+      "code": 6001,
+      "msg": "Invalid merchant details provided.",
+      "name": "InvalidMerchantDetails"
+    },
+    {
+      "code": 6002,
+      "msg": "Merchant registration limit reached.",
+      "name": "MerchantRegistrationLimitReached"
+    },
+    {
+      "code": 6003,
+      "msg": "Unauthorized access to merchant data.",
+      "name": "UnauthorizedMerchantAccess"
+    },
+    {
+      "code": 6004,
+      "msg": "Merchant not found.",
+      "name": "MerchantNotFound"
+    }
+  ],
   "instructions": [
     {
-      "name": "initialize_cancel_subscription",
-      "discriminator": [
-        154,
-        180,
-        189,
-        36,
-        164,
-        2,
-        141,
-        212
-      ],
       "accounts": [
         {
           "name": "user_subscription",
@@ -29,28 +93,27 @@
         },
         {
           "name": "subscriber",
-          "writable": true,
-          "signer": true
+          "signer": true,
+          "writable": true
         }
       ],
-      "args": []
+      "args": [],
+      "discriminator": [
+        154,
+        180,
+        189,
+        36,
+        164,
+        2,
+        141,
+        212
+      ],
+      "name": "initialize_cancel_subscription"
     },
     {
-      "name": "initialize_merchant",
-      "discriminator": [
-        7,
-        90,
-        74,
-        38,
-        99,
-        111,
-        142,
-        77
-      ],
       "accounts": [
         {
           "name": "merchant_registration",
-          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -71,16 +134,17 @@
                 "path": "user"
               }
             ]
-          }
+          },
+          "writable": true
         },
         {
           "name": "user",
-          "writable": true,
-          "signer": true
+          "signer": true,
+          "writable": true
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "address": "11111111111111111111111111111111",
+          "name": "system_program"
         }
       ],
       "args": [
@@ -98,24 +162,23 @@
             "vec": "pubkey"
           }
         }
-      ]
+      ],
+      "discriminator": [
+        7,
+        90,
+        74,
+        38,
+        99,
+        111,
+        142,
+        77
+      ],
+      "name": "initialize_merchant"
     },
     {
-      "name": "initialize_payment_transaction",
-      "discriminator": [
-        178,
-        80,
-        74,
-        193,
-        54,
-        252,
-        121,
-        205
-      ],
       "accounts": [
         {
           "name": "payment_transaction",
-          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -135,19 +198,20 @@
                 "path": "tx_signature_hash"
               }
             ]
-          }
+          },
+          "writable": true
         },
         {
           "name": "merchant_registration"
         },
         {
           "name": "payer",
-          "writable": true,
-          "signer": true
+          "signer": true,
+          "writable": true
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "address": "11111111111111111111111111111111",
+          "name": "system_program"
         }
       ],
       "args": [
@@ -176,24 +240,23 @@
           "name": "status",
           "type": "u8"
         }
-      ]
+      ],
+      "discriminator": [
+        178,
+        80,
+        74,
+        193,
+        54,
+        252,
+        121,
+        205
+      ],
+      "name": "initialize_payment_transaction"
     },
     {
-      "name": "initialize_subscription_plan",
-      "discriminator": [
-        222,
-        51,
-        240,
-        12,
-        204,
-        39,
-        119,
-        105
-      ],
       "accounts": [
         {
           "name": "subscription_plan",
-          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -222,19 +285,20 @@
                 "path": "merchant_address"
               }
             ]
-          }
+          },
+          "writable": true
         },
         {
           "name": "merchant_registration"
         },
         {
           "name": "merchant_address",
-          "writable": true,
-          "signer": true
+          "signer": true,
+          "writable": true
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "address": "11111111111111111111111111111111",
+          "name": "system_program"
         }
       ],
       "args": [
@@ -264,24 +328,23 @@
           "name": "is_active",
           "type": "bool"
         }
-      ]
+      ],
+      "discriminator": [
+        222,
+        51,
+        240,
+        12,
+        204,
+        39,
+        119,
+        105
+      ],
+      "name": "initialize_subscription_plan"
     },
     {
-      "name": "initialize_user_subscription",
-      "discriminator": [
-        202,
-        177,
-        36,
-        216,
-        151,
-        191,
-        19,
-        83
-      ],
       "accounts": [
         {
           "name": "user_subscription",
-          "writable": true,
           "pda": {
             "seeds": [
               {
@@ -315,7 +378,8 @@
                 "path": "subscriber"
               }
             ]
-          }
+          },
+          "writable": true
         },
         {
           "name": "subscription_plan"
@@ -325,12 +389,12 @@
         },
         {
           "name": "subscriber",
-          "writable": true,
-          "signer": true
+          "signer": true,
+          "writable": true
         },
         {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
+          "address": "11111111111111111111111111111111",
+          "name": "system_program"
         }
       ],
       "args": [
@@ -348,10 +412,39 @@
             "vec": "pubkey"
           }
         }
-      ]
+      ],
+      "discriminator": [
+        202,
+        177,
+        36,
+        216,
+        151,
+        191,
+        19,
+        83
+      ],
+      "name": "initialize_user_subscription"
     },
     {
-      "name": "update_subscription_plan",
+      "accounts": [
+        {
+          "name": "subscription_plan",
+          "writable": true
+        },
+        {
+          "name": "merchant_address",
+          "relations": [
+            "subscription_plan"
+          ],
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "is_active",
+          "type": "bool"
+        }
+      ],
       "discriminator": [
         27,
         73,
@@ -362,118 +455,19 @@
         78,
         133
       ],
-      "accounts": [
-        {
-          "name": "subscription_plan",
-          "writable": true
-        },
-        {
-          "name": "merchant_address",
-          "signer": true,
-          "relations": [
-            "subscription_plan"
-          ]
-        }
-      ],
-      "args": [
-        {
-          "name": "is_active",
-          "type": "bool"
-        }
-      ]
+      "name": "update_subscription_plan"
     }
   ],
-  "accounts": [
-    {
-      "name": "MerchantRegistration",
-      "discriminator": [
-        52,
-        168,
-        1,
-        47,
-        65,
-        242,
-        88,
-        60
-      ]
-    },
-    {
-      "name": "PaymentTransaction",
-      "discriminator": [
-        70,
-        221,
-        6,
-        3,
-        5,
-        162,
-        149,
-        177
-      ]
-    },
-    {
-      "name": "SubscriptionPlan",
-      "discriminator": [
-        157,
-        153,
-        188,
-        46,
-        234,
-        53,
-        172,
-        124
-      ]
-    },
-    {
-      "name": "UserSubscription",
-      "discriminator": [
-        108,
-        179,
-        18,
-        43,
-        167,
-        65,
-        185,
-        163
-      ]
-    }
-  ],
-  "errors": [
-    {
-      "code": 6000,
-      "name": "PaymentTransactionAlreadyExists",
-      "msg": "Payment transaction already exists."
-    },
-    {
-      "code": 6001,
-      "name": "InvalidPaymentTransactionDetails",
-      "msg": "Invalid payment transaction details provided."
-    },
-    {
-      "code": 6002,
-      "name": "PaymentTransactionLimitReached",
-      "msg": "Payment transaction limit reached."
-    },
-    {
-      "code": 6003,
-      "name": "UnauthorizedPaymentTransactionAccess",
-      "msg": "Unauthorized access to payment transaction data."
-    },
-    {
-      "code": 6004,
-      "name": "PaymentTransactionNotFound",
-      "msg": "Payment transaction not found."
-    },
-    {
-      "code": 6005,
-      "name": "InsufficientFunds",
-      "msg": "Insufficient funds for the transaction."
-    }
-  ],
+  "metadata": {
+    "description": "Created with Anchor",
+    "name": "solpay_smartcontract",
+    "spec": "0.1.0",
+    "version": "0.1.0"
+  },
   "types": [
     {
       "name": "MerchantRegistration",
       "type": {
-        "kind": "struct",
         "fields": [
           {
             "name": "merchant_name",
@@ -501,13 +495,13 @@
               "vec": "pubkey"
             }
           }
-        ]
+        ],
+        "kind": "struct"
       }
     },
     {
       "name": "PaymentTransaction",
       "type": {
-        "kind": "struct",
         "fields": [
           {
             "name": "tx_signature",
@@ -537,13 +531,13 @@
             "name": "created_at",
             "type": "i64"
           }
-        ]
+        ],
+        "kind": "struct"
       }
     },
     {
       "name": "SubscriptionPlan",
       "type": {
-        "kind": "struct",
         "fields": [
           {
             "name": "plan_name",
@@ -579,13 +573,13 @@
               "vec": "pubkey"
             }
           }
-        ]
+        ],
+        "kind": "struct"
       }
     },
     {
       "name": "UserSubscription",
       "type": {
-        "kind": "struct",
         "fields": [
           {
             "name": "subscriber",
@@ -623,7 +617,8 @@
               "option": "i64"
             }
           }
-        ]
+        ],
+        "kind": "struct"
       }
     }
   ]

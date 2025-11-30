@@ -10,13 +10,12 @@ export function useGetTokenAccountsQuery({ address }: { address: Address }) {
   return useQuery({
     queryKey: ['get-token-accounts', { cluster, address }],
     queryFn: async () => {
-      const addrPub = new PublicKey(address)
-      const [res1, res2] = await Promise.all([
-        (connection as any).getTokenAccountsByOwner(addrPub, { programId: TOKEN_PROGRAM_ADDRESS }),
-        (connection as any).getTokenAccountsByOwner(addrPub, { programId: TOKEN_2022_PROGRAM_ADDRESS }),
+      const [a, b] = await Promise.all([
+        connection.getTokenAccountsByOwner(new PublicKey(String(address)), { programId: new PublicKey(String(TOKEN_PROGRAM_ADDRESS)) }),
+        connection.getTokenAccountsByOwner(new PublicKey(String(address)), { programId: new PublicKey(String(TOKEN_2022_PROGRAM_ADDRESS)) }),
       ])
-      const tokenAccounts = (res1 as any)?.value ?? []
-      const token2022Accounts = (res2 as any)?.value ?? []
+      const tokenAccounts = (a as any).value ?? []
+      const token2022Accounts = (b as any).value ?? []
       return [...tokenAccounts, ...token2022Accounts]
     },
   })

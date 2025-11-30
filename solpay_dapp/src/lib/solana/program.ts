@@ -35,5 +35,6 @@ export function getProgram(wallet?: WalletLike) {
   if (SOLPAY_PROGRAM_ID) {
     (idl as any).address = SOLPAY_PROGRAM_ID.toBase58()
   }
-  return new Program<SolpaySmartcontract>(idl as any, provider)
+  // Cast to `any` to avoid strict IDL-derived typing issues in the codebase
+  return new Program(idl as any, provider) as any
 }
