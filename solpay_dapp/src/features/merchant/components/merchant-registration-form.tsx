@@ -39,15 +39,15 @@ export function MerchantRegistrationForm({ onSubmit }: MerchantRegistrationFormP
     }
 
     onSubmit?.(draft)
-    console.info('merchant draft prepared for initializeMerchant:', draft)
+    console.info('merchant draft prepared for createMerchant:', draft)
   }
 
   return (
     <Card>
-      <CardHeader>
+        <CardHeader>
         <CardTitle>Merchant registration</CardTitle>
         <CardDescription>
-          Mirror the `initializeMerchant` instruction. All fields are required and map 1:1 to the Anchor arguments.
+          Mirror the `createMerchant` flow. All fields are required and map 1:1 to the Anchor arguments.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -86,7 +86,7 @@ export function MerchantRegistrationForm({ onSubmit }: MerchantRegistrationFormP
             </p>
           </div>
           <Button type="submit" disabled={!isValid} className="w-full">
-            Prepare initializeMerchant
+            Create Merchant
           </Button>
         </form>
       </CardContent>
