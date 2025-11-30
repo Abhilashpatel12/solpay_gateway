@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { getProgram } from '@/lib/solana/program'
 import { getMerchantPda, getSubscriptionPlanPda } from '@/lib/solana/pdas'
+import { prepareInitializeSubscriptionPlan } from '@/lib/solana/transactions'
 import { PublicKey, SystemProgram } from '@solana/web3.js'
 import { toast } from 'sonner'
 import { BN } from '@coral-xyz/anchor'
@@ -20,30 +21,16 @@ export function useInitializeSubscriptionPlan() {
         throw new Error('Wallet not connected')
       }
 
-      const program = getProgram(wallet)
-      const [merchantPda] = getMerchantPda(wallet.publicKey)
-      const [planPda] = getSubscriptionPlanPda(draft.planName, wallet.publicKey)
+      const { builder } = prepareInitializeSubscriptionPlan(wallet, {
+        planName: draft.planName,
+        planPriceLamports: new BN(draft.planPriceLamports),
+        tokenMint: new PublicKey('11111111111111111111111111111111'),
+        billingCycle: draft.billingCycleDays,
+        supportedTokens: [],
+        isActive: draft.isActive,
+      })
 
-      // Use native SOL mint and no supported tokens
-      const nativeMint = new PublicKey('11111111111111111111111111111111')
-      const supportedTokens: PublicKey[] = []
-
-      return program.methods
-        .initializeSubscriptionPlan(
-          draft.planName,
-          new BN(draft.planPriceLamports),
-          nativeMint,
-          draft.billingCycleDays,
-          supportedTokens,
-          draft.isActive,
-        )
-        .accounts({
-          subscriptionPlan: planPda,
-          merchantRegistration: merchantPda,
-          merchantAddress: wallet.publicKey,
-          systemProgram: SystemProgram.programId,
-        })
-        .rpc()
+      return builder.rpc()
     },
 
     onSuccess: (signature) => {

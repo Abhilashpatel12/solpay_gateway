@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { getProgram } from '@/lib/solana/program'
+import { prepareCancelSubscription } from '@/lib/solana/transactions'
 import { PublicKey } from '@solana/web3.js'
 import { toast } from 'sonner'
 
@@ -18,18 +19,12 @@ export function useCancelSubscription() {
     }) => {
       if (!wallet.publicKey) throw new Error('Wallet not connected')
 
-      const program = getProgram(wallet)
+      const { builder } = prepareCancelSubscription(wallet, {
+        userSubscription: userSubscriptionPda,
+        subscriptionPlan: subscriptionPlanPda,
+      })
 
-      const tx = await program.methods
-        .initializeCancelSubscription()
-        .accounts({
-          userSubscription: userSubscriptionPda,
-          subscriptionPlan: subscriptionPlanPda,
-          subscriber: wallet.publicKey,
-        })
-        .rpc()
-
-      return tx
+      return builder.rpc()
     },
     onSuccess: (signature) => {
       toast.success('Subscription cancelled successfully')

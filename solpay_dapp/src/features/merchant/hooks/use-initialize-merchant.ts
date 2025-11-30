@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { getProgram } from '@/lib/solana/program'
 import { getMerchantPda } from '@/lib/solana/pdas'
+import { prepareInitializeMerchant } from '@/lib/solana/transactions'
 import { PublicKey, SystemProgram } from '@solana/web3.js'
 import { toast } from 'sonner'
 import { MerchantRegistrationDraft } from '../components/merchant-registration-form'
@@ -16,23 +17,13 @@ export function useInitializeMerchant() {
         throw new Error('Wallet not connected')
       }
 
-      const program = getProgram(wallet)
-      const [merchantPda] = getMerchantPda(wallet.publicKey)
+      const { builder } = prepareInitializeMerchant(wallet, {
+        merchantName: draft.merchantName,
+        merchantWeburl: draft.merchantWeburl,
+        supportedTokens: draft.supportedTokens.map((token) => new PublicKey(token)),
+      })
 
-      const supportedTokens = draft.supportedTokens.map((token) => new PublicKey(token))
-
-      return program.methods
-        .initializeMerchant(
-          draft.merchantName,
-          draft.merchantWeburl,
-          supportedTokens
-        )
-        .accounts({
-          merchantRegistration: merchantPda,
-          user: wallet.publicKey,
-          systemProgram: SystemProgram.programId,
-        })
-        .rpc()
+      return builder.rpc()
     },
     onSuccess: (signature) => {
       toast.success('Merchant initialized successfully!')
