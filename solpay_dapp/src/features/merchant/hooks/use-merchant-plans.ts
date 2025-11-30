@@ -33,11 +33,11 @@ export function useMerchantPlans(merchantAddress?: string) {
         // So fetching all and filtering is the way for now unless we add a secondary index or fixed offsets.
         // Let's fetch all and filter.
         
-        const allPlans = await program.account.subscriptionPlan.all()
+          const allPlans = await (program.account as any).subscriptionPlan.all()
         
         return allPlans
-          .filter(account => account.account.merchantAddress.toString() === merchantAddress)
-          .map(account => ({
+            .filter((account: any) => account.account.merchantAddress.toString() === merchantAddress)
+          .map((account: any) => ({
             publicKey: account.publicKey,
             ...account.account
           }))

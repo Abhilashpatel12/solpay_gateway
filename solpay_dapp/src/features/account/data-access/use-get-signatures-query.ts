@@ -1,6 +1,7 @@
 import type { Address } from 'gill'
 import { useQuery } from '@tanstack/react-query'
 import { useSolana } from '@/components/solana/use-solana'
+import { PublicKey } from '@solana/web3.js'
 import { useGetSignaturesQueryKey } from './use-get-signatures-query-key'
 import { PublicKey } from '@solana/web3.js'
 

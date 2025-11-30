@@ -4,7 +4,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { lamportsToSol } from '@/lib/solana/utils'
 
@@ -29,9 +29,9 @@ export function PlanDetailsFeature({ planName }: { planName: string }) {
   const { data: subscriptions, isLoading: isSubsLoading } = useMerchantSubscriptions(merchantAddress)
   const { mutate: updatePlan, isPending: isUpdating } = useUpdateSubscriptionPlan()
 
-  const plan = plans?.find((p) => p.planName === planName)
-  const planSubscribers = subscriptions?.filter((s) => s.subscriptionPlan.toString() === plan?.publicKey.toString()) || []
-  const activeSubscribers = planSubscribers.filter((s) => s.isActive).length
+  const plan = plans?.find((p: any) => p.planName === planName)
+  const planSubscribers = subscriptions?.filter((s: any) => s.subscriptionPlan.toString() === plan?.publicKey.toString()) || []
+  const activeSubscribers = planSubscribers.filter((s: any) => s.isActive).length
 
   const { data: planTransactions = [] } = useMerchantPlanTransactions(
     merchantAddress,
@@ -88,7 +88,8 @@ export function PlanDetailsFeature({ planName }: { planName: string }) {
   return (
     <div className="space-y-6">
       <Button variant="ghost" onClick={() => router.push('/merchant')}>
-        c Back to dashboard
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to dashboard
       </Button>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -99,7 +100,9 @@ export function PlanDetailsFeature({ planName }: { planName: string }) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap items-baseline gap-2">
-              <span className="text-3xl font-semibold">{plan.planPrice.toString()}</span>
+              <span className="text-3xl font-semibold">
+                {formatSol(lamportsToSol(typeof plan.planPrice === 'object' && plan.planPrice.toNumber ? plan.planPrice.toNumber() : Number(plan.planPrice)))}
+              </span>
               <span className="text-sm text-muted-foreground">SOL / {plan.billingCycle} days</span>
             </div>
 
@@ -125,7 +128,7 @@ export function PlanDetailsFeature({ planName }: { planName: string }) {
             <div className="pt-4">
               <Button
                 onClick={() =>
-                  updatePlan({
+                  plan && updatePlan({
                     planPda: plan.publicKey,
                     isActive: !plan.isActive,
                   })

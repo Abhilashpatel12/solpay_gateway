@@ -16,13 +16,13 @@ export function prepareInitializeMerchant(wallet: WalletLike | undefined, args: 
 }) {
   if (!wallet?.publicKey) throw new Error('Wallet is not connected')
 
-  const program = getProgram(wallet)
+  const program = getProgram(wallet) as any
   const [merchantPda] = getMerchantPda(wallet.publicKey)
 
   const builder = program.methods
-    .initializeMerchant(args.merchantName, args.merchantWeburl, args.supportedTokens)
+    .initialize_merchant(args.merchantName, args.merchantWeburl, args.supportedTokens)
     .accounts({
-      merchantRegistration: merchantPda,
+      merchant_registration: merchantPda,
       user: wallet.publicKey,
       systemProgram: SystemProgram.programId,
     })
@@ -40,12 +40,12 @@ export function prepareInitializeSubscriptionPlan(wallet: WalletLike | undefined
 }) {
   if (!wallet?.publicKey) throw new Error('Wallet is not connected')
 
-  const program = getProgram(wallet)
+  const program = getProgram(wallet) as any
   const [planPda] = getSubscriptionPlanPda(args.planName, wallet.publicKey)
   const [merchantPda] = getMerchantPda(wallet.publicKey)
 
   const builder = program.methods
-    .initializeSubscriptionPlan(
+    .initialize_subscription_plan(
       args.planName,
       args.planPriceLamports,
       args.tokenMint,
@@ -54,9 +54,9 @@ export function prepareInitializeSubscriptionPlan(wallet: WalletLike | undefined
       args.isActive,
     )
     .accounts({
-      subscriptionPlan: planPda,
-      merchantRegistration: merchantPda,
-      merchantAddress: wallet.publicKey,
+      subscription_plan: planPda,
+      merchant_registration: merchantPda,
+      merchant_address: wallet.publicKey,
       systemProgram: SystemProgram.programId,
     })
 
@@ -72,15 +72,15 @@ export function prepareInitializeUserSubscription(wallet: WalletLike | undefined
 }) {
   if (!wallet?.publicKey) throw new Error('Wallet is not connected')
 
-  const program = getProgram(wallet)
+  const program = getProgram(wallet) as any
   const [userSubscriptionPda] = getUserSubscriptionPda(args.subscriptionPlan, wallet.publicKey)
 
   const builder = program.methods
-    .initializeUserSubscription(args.nextBillingDate, args.isActive, args.supportedTokens)
+    .initialize_user_subscription(args.nextBillingDate, args.isActive, args.supportedTokens)
     .accounts({
-      userSubscription: userSubscriptionPda,
-      subscriptionPlan: args.subscriptionPlan,
-      merchantRegistration: args.merchantRegistration,
+      user_subscription: userSubscriptionPda,
+      subscription_plan: args.subscriptionPlan,
+      merchant_registration: args.merchantRegistration,
       subscriber: wallet.publicKey,
       systemProgram: SystemProgram.programId,
     })
@@ -94,10 +94,10 @@ export function prepareCancelSubscription(wallet: WalletLike | undefined, args: 
 }) {
   if (!wallet?.publicKey) throw new Error('Wallet is not connected')
 
-  const program = getProgram(wallet)
-  const builder = program.methods.initializeCancelSubscription().accounts({
-    userSubscription: args.userSubscription,
-    subscriptionPlan: args.subscriptionPlan,
+  const program = getProgram(wallet) as any
+  const builder = program.methods.initialize_cancel_subscription().accounts({
+    user_subscription: args.userSubscription,
+    subscription_plan: args.subscriptionPlan,
     subscriber: wallet.publicKey,
   })
 
@@ -113,16 +113,16 @@ export function prepareLogPayment(wallet: WalletLike | undefined, args: {
 }) {
   if (!wallet?.publicKey) throw new Error('Wallet is not connected')
 
-  const program = getProgram(wallet)
+  const program = getProgram(wallet) as any
   const [paymentTransactionPda] = getPaymentTransactionPda(args.txSignature)
   // Hash the tx signature to a 32-byte array to match on-chain PDA derivation
   const sigHash = createHash('sha256').update(args.txSignature).digest()
 
   const builder = program.methods
-    .initializePaymentTransaction(args.txSignature, Array.from(sigHash), args.amount, args.tokenMint, args.status)
+    .initialize_payment_transaction(args.txSignature, Array.from(sigHash), args.amount, args.tokenMint, args.status)
     .accounts({
-      paymentTransaction: paymentTransactionPda,
-      merchantRegistration: args.merchantRegistration,
+      payment_transaction: paymentTransactionPda,
+      merchant_registration: args.merchantRegistration,
       payer: wallet.publicKey,
       systemProgram: SystemProgram.programId,
     })

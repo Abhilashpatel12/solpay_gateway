@@ -36,7 +36,7 @@ export function SubscribersList({ merchantAddress }: { merchantAddress?: string 
               </TableRow>
             </TableHeader>
             <TableBody>
-              {subscriptions.map((sub) => (
+              {subscriptions.map((sub: any) => (
                 <TableRow key={sub.publicKey.toString()}>
                   <TableCell className="font-medium font-mono">
                     {ellipsify(sub.subscriber.toString())}

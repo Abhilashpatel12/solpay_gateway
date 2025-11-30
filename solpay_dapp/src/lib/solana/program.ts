@@ -4,7 +4,7 @@ import type { Transaction } from '@solana/web3.js'
 import { getConnection } from '@/lib/solana/connection'
 import { SOLPAY_PROGRAM_ID } from '@/lib/solana/constants'
 import idl from '@/idl/solpay_smartcontract.json'
-import type { SolpaySmartcontract } from '@/types/solpay_smartcontract'
+import { SolpaySmartcontract } from '@/types/solpay_smartcontract'
 
 export type WalletLike = {
   publicKey: Adapter['publicKey']

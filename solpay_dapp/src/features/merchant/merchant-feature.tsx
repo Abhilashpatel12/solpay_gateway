@@ -29,8 +29,8 @@ export function MerchantFeature() {
   const { data: subscriptions } = useMerchantSubscriptions(merchantAddress)
 
   // Derived Stats
-  const totalRevenue = transactions?.reduce((acc, tx) => acc + tx.amount, 0) || 0
-  const activeSubscribers = subscriptions?.filter(s => s.isActive).length || 0
+  const totalRevenue = transactions?.reduce((acc: any, tx: any) => acc + tx.amount, 0) || 0
+  const activeSubscribers = subscriptions?.filter((s: any) => s.isActive).length || 0
   const totalTransactions = transactions?.length || 0
   const avgTransactionValue = totalTransactions > 0 ? totalRevenue / totalTransactions : 0
 
@@ -39,7 +39,7 @@ export function MerchantFeature() {
   const avgTransactionValueSol = lamportsToSol(avgTransactionValue)
 
   // Chart Data
-  const dailyRevenue = transactions?.reduce((acc, tx) => {
+  const dailyRevenue = transactions?.reduce((acc: Map<number, { amount: number }>, tx: any) => {
     const day = new Date(tx.createdAt * 1000);
     day.setHours(0, 0, 0, 0);
     const dayTimestamp = day.getTime();
@@ -53,12 +53,12 @@ export function MerchantFeature() {
 
   const chartData = dailyRevenue 
     ? Array.from(dailyRevenue.entries())
-      .map(([timestamp, data]) => ({
+      .map(([timestamp, data]: any) => ({
         date: new Date(timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
         amount: data.amount,
         timestamp,
       }))
-      .sort((a, b) => a.timestamp - b.timestamp)
+      .sort((a: any, b: any) => a.timestamp - b.timestamp)
     : [];
 
 
@@ -131,7 +131,7 @@ export function MerchantFeature() {
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <div className="col-span-4">
-              <RevenueChart data={chartData} />
+              <RevenueChart data={chartData as any} />
             </div>
             <div className="col-span-3">
               <RecentTransactions transactions={transactions || []} />

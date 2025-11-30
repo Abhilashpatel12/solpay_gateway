@@ -57,7 +57,7 @@ export function useSubscribe() {
       // surface a clear error instead of letting the program call fail later.
       try {
         // If fetch succeeds, subscription already exists
-        await (program.account as any).userSubscription.fetch(userSubscriptionPda)
+        await (program.account as any).user_subscription.fetch(userSubscriptionPda)
         throw new Error('Already subscribed to this plan')
       } catch (err: any) {
         // Anchor error messages vary between environments. If the account does
@@ -79,8 +79,8 @@ export function useSubscribe() {
       }
 
       // Preflight checks
-      await program.account.merchantRegistration.fetch(merchantPda)
-      await program.account.subscriptionPlan.fetch(planPdaPub)
+      await (program.account as any).merchant_registration.fetch(merchantPda)
+      await (program.account as any).subscription_plan.fetch(planPdaPub)
 
       // Calculate next billing date
       const now = Math.floor(Date.now() / 1000)
