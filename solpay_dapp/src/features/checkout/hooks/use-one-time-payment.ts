@@ -23,7 +23,7 @@ export function useOneTimePayment() {
       let merchantPubkey: PublicKey
       try {
         merchantPubkey = new PublicKey(merchantAddress)
-      } catch (err) {
+      } catch {
         throw new Error('Invalid merchant address')
       }
 
@@ -52,7 +52,7 @@ export function useOneTimePayment() {
       let signature: string
       try {
         signature = await wallet.sendTransaction(transaction, connection)
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('sendTransaction error', err)
         throw err
       }
@@ -76,7 +76,7 @@ export function useOneTimePayment() {
     onSuccess: () => {
       toast.success('Payment completed successfully')
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error(error)
       toast.error(`Payment failed: ${error?.message ?? String(error)}`)
     },

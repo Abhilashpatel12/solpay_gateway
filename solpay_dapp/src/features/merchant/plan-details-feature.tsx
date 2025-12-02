@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { lamportsToSol } from '@/lib/solana/utils'
+import type { SubscriptionPlanWithPubkey, ProcessedPaymentTransaction, ChartDataPoint } from '@/types/solpay_smartcontract'
 
 function formatSol(value: number) {
   if (!isFinite(value)) return '0'
@@ -19,6 +20,11 @@ import { useMerchantPlans } from './hooks/use-merchant-plans'
 import { useUpdateSubscriptionPlan } from './hooks/use-update-subscription-plan'
 import { useMerchantPlanTransactions } from './hooks/use-merchant-plan-transactions'
 
+interface MerchantSubscriptionWithPlan {
+  subscriptionPlan: { toString: () => string }
+  isActive: boolean
+}
+
 export function PlanDetailsFeature({ planName }: { planName: string }) {
   const { connected } = useWallet()
   const router = useRouter()
@@ -29,22 +35,22 @@ export function PlanDetailsFeature({ planName }: { planName: string }) {
   const { data: subscriptions, isLoading: isSubsLoading } = useMerchantSubscriptions(merchantAddress)
   const { mutate: updatePlan, isPending: isUpdating } = useUpdateSubscriptionPlan()
 
-  const plan = plans?.find((p: any) => p.planName === planName)
-  const planSubscribers = subscriptions?.filter((s: any) => s.subscriptionPlan.toString() === plan?.publicKey.toString()) || []
-  const activeSubscribers = planSubscribers.filter((s: any) => s.isActive).length
+  const plan = plans?.find((p: SubscriptionPlanWithPubkey) => p.planName === planName)
+  const planSubscribers = subscriptions?.filter((s: MerchantSubscriptionWithPlan) => s.subscriptionPlan.toString() === plan?.publicKey.toString()) || []
+  const activeSubscribers = planSubscribers.filter((s: MerchantSubscriptionWithPlan) => s.isActive).length
 
   const { data: planTransactions = [] } = useMerchantPlanTransactions(
     merchantAddress,
     plan?.publicKey.toString()
   )
 
-  const totalEarnedLamports = planTransactions.reduce((sum: number, tx: any) => sum + tx.amount, 0)
+  const totalEarnedLamports = planTransactions.reduce((sum: number, tx: ProcessedPaymentTransaction) => sum + tx.amount, 0)
   const totalEarnedSol = lamportsToSol(totalEarnedLamports)
 
-  const chartData = planTransactions
+  const chartData: ChartDataPoint[] = planTransactions
     .slice()
-    .sort((a: any, b: any) => a.createdAt - b.createdAt)
-    .reduce((acc: any[], tx: any) => {
+    .sort((a: ProcessedPaymentTransaction, b: ProcessedPaymentTransaction) => a.createdAt - b.createdAt)
+    .reduce((acc: ChartDataPoint[], tx: ProcessedPaymentTransaction) => {
       const date = new Date(tx.createdAt * 1000)
       const label = `${date.getDate()}/${date.getMonth() + 1}`
       const existing = acc.find((d) => d.date === label)

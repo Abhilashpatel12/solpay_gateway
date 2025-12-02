@@ -155,7 +155,7 @@ export default function PublicOneTimePaymentPage() {
             onClick={() => {
               if (tokenType === 'subscribe') {
                 // construct a minimal plan object that useSubscribe expects
-                const planForMutation: any = {
+                const planForMutation = {
                   planName: planName,
                   publicKey: planPda,
                   planPrice: amountLamports,

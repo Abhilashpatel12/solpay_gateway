@@ -14,8 +14,8 @@ export function useGetTokenAccountsQuery({ address }: { address: Address }) {
         connection.getTokenAccountsByOwner(new PublicKey(String(address)), { programId: new PublicKey(String(TOKEN_PROGRAM_ADDRESS)) }),
         connection.getTokenAccountsByOwner(new PublicKey(String(address)), { programId: new PublicKey(String(TOKEN_2022_PROGRAM_ADDRESS)) }),
       ])
-      const tokenAccounts = (a as any).value ?? []
-      const token2022Accounts = (b as any).value ?? []
+      const tokenAccounts = a.value ?? []
+      const token2022Accounts = b.value ?? []
       return [...tokenAccounts, ...token2022Accounts]
     },
   })

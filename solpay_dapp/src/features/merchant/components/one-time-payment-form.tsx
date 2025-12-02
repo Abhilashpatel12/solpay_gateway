@@ -17,7 +17,7 @@ export function OneTimePaymentForm({ merchantAddress }: { merchantAddress?: stri
   const [amountLamports, setAmountLamports] = useState('')
   const [description, setDescription] = useState('')
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isValid = Number(amountLamports) > 0 && !!merchantAddress
 
@@ -30,7 +30,7 @@ export function OneTimePaymentForm({ merchantAddress }: { merchantAddress?: stri
       description: description.trim() || undefined,
     }
 
-    setLoading(true)
+    setIsSubmitting(true)
     try {
       const res = await fetch('/api/pay/generate', {
         method: 'POST',
@@ -56,11 +56,12 @@ export function OneTimePaymentForm({ merchantAddress }: { merchantAddress?: stri
 
       await navigator.clipboard.writeText(baseUrl)
       toast.success('One-time payment link copied to clipboard')
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to generate payment link'
       console.error(err)
-      toast.error(err?.message ?? 'Failed to generate payment link')
+      toast.error(message)
     } finally {
-      setLoading(false)
+      setIsSubmitting(false)
     }
   }
 
@@ -99,7 +100,7 @@ export function OneTimePaymentForm({ merchantAddress }: { merchantAddress?: stri
             />
           </div>
           <div className="flex items-center gap-2">
-            <Button type="submit" className="w-full" disabled={!isValid}>
+            <Button type="submit" className="w-full" disabled={!isValid || isSubmitting}>
               Copy payment link
             </Button>
             {generatedUrl && typeof window !== 'undefined' && (

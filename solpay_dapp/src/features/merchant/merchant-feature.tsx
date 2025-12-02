@@ -1,7 +1,6 @@
 'use client'
 
 import { useWallet } from '@solana/wallet-adapter-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { MerchantRegistrationForm } from '@/features/merchant/components/merchant-registration-form'
 import { SubscriptionPlanForm } from '@/features/merchant/components/subscription-plan-form'
 import { PlansPreview } from '@/features/merchant/components/plans-preview'
@@ -17,6 +16,11 @@ import { lamportsToSol } from '@/lib/solana/utils'
 import { RevenueChart } from './components/revenue-chart'
 import { RecentTransactions } from './components/recent-transactions'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import type { ProcessedPaymentTransaction, ChartDataPoint } from '@/types/solpay_smartcontract'
+
+interface MerchantSubscriptionWithActive {
+  isActive: boolean
+}
 
 export function MerchantFeature() {
   const { connected } = useWallet()
@@ -29,8 +33,8 @@ export function MerchantFeature() {
   const { data: subscriptions } = useMerchantSubscriptions(merchantAddress)
 
   // Derived Stats
-  const totalRevenue = transactions?.reduce((acc: any, tx: any) => acc + tx.amount, 0) || 0
-  const activeSubscribers = subscriptions?.filter((s: any) => s.isActive).length || 0
+  const totalRevenue = transactions?.reduce((acc: number, tx: ProcessedPaymentTransaction) => acc + tx.amount, 0) || 0
+  const activeSubscribers = subscriptions?.filter((s: MerchantSubscriptionWithActive) => s.isActive).length || 0
   const totalTransactions = transactions?.length || 0
   const avgTransactionValue = totalTransactions > 0 ? totalRevenue / totalTransactions : 0
 
@@ -39,7 +43,7 @@ export function MerchantFeature() {
   const avgTransactionValueSol = lamportsToSol(avgTransactionValue)
 
   // Chart Data
-  const dailyRevenue = transactions?.reduce((acc: Map<number, { amount: number }>, tx: any) => {
+  const dailyRevenue = transactions?.reduce((acc: Map<number, { amount: number }>, tx: ProcessedPaymentTransaction) => {
     const day = new Date(tx.createdAt * 1000);
     day.setHours(0, 0, 0, 0);
     const dayTimestamp = day.getTime();
@@ -51,14 +55,14 @@ export function MerchantFeature() {
     return acc;
   }, new Map<number, { amount: number }>());
 
-  const chartData = dailyRevenue 
+  const chartData: ChartDataPoint[] = dailyRevenue 
     ? Array.from(dailyRevenue.entries())
-      .map(([timestamp, data]: any) => ({
+      .map(([timestamp, data]: [number, { amount: number }]): ChartDataPoint => ({
         date: new Date(timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
         amount: data.amount,
         timestamp,
       }))
-      .sort((a: any, b: any) => a.timestamp - b.timestamp)
+      .sort((a: ChartDataPoint, b: ChartDataPoint) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
     : [];
 
 
@@ -131,7 +135,7 @@ export function MerchantFeature() {
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <div className="col-span-4">
-              <RevenueChart data={chartData as any} />
+              <RevenueChart data={chartData} />
             </div>
             <div className="col-span-3">
               <RecentTransactions transactions={transactions || []} />

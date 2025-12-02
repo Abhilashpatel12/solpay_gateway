@@ -27,11 +27,28 @@ export const features = [
   },
 ];
 
+// Types for the unused mock data placeholders
+interface Stat {
+  label: string
+  value: string
+  trend: string
+}
+
+interface Timeline {
+  title: string
+  body: string
+}
+
+interface Testimonial {
+  author: string
+  quote: string
+}
+
 // Export empty placeholders for removed mock data so unused components that
 // still import these names do not break the build. These intentionally carry
 // no mock content — landing page only uses `features` for explanatory text.
-export const stats: any[] = []
+export const stats: Stat[] = []
 export const logos: string[] = []
-export const timelines: any[] = []
-export const testimonials: any[] = []
-export const chartData: any[] = []
+export const timelines: Timeline[] = []
+export const testimonials: Testimonial[] = []
+export const chartData: { date: string; amount: number }[] = []

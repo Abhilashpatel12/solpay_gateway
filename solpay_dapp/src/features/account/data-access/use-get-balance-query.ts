@@ -10,7 +10,7 @@ export function useGetBalanceQuery({ address }: { address: Address | PublicKey }
 
   return useQuery({
     retry: false,
-    queryKey: useGetBalanceQueryKey({ address: pub.toString() as any }),
+    queryKey: useGetBalanceQueryKey({ address: pub.toString() as Address }),
     queryFn: async () => {
       return await connection.getBalance(pub)
     },

@@ -1,13 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { getProgram } from '@/lib/solana/program'
+import type { PublicKey } from '@solana/web3.js'
+import type { AccountWrapper, UserSubscription } from '@/types/solpay_smartcontract'
+
+interface MerchantSubscription extends UserSubscription {
+  publicKey: PublicKey
+}
 
 export function useMerchantSubscriptions(merchantAddress?: string) {
   const wallet = useWallet()
 
   return useQuery({
     queryKey: ['merchant-subscriptions', merchantAddress, { cluster: 'devnet' }],
-    queryFn: async () => {
+    queryFn: async (): Promise<MerchantSubscription[]> => {
       if (!merchantAddress) {
         return []
       }
@@ -26,7 +32,7 @@ export function useMerchantSubscriptions(merchantAddress?: string) {
         
         // Offset = 8 + 32 + 32 + 8 + 8 + 1 = 89
         
-        const subscriptions = await (program.account as any).user_subscription.all([
+        const subscriptions = await (program.account as { user_subscription: { all: (filters: unknown[]) => Promise<AccountWrapper<UserSubscription>[]> } }).user_subscription.all([
           {
             memcmp: {
               offset: 89,
@@ -35,7 +41,7 @@ export function useMerchantSubscriptions(merchantAddress?: string) {
           },
         ])
 
-        return subscriptions.map((sub: any) => ({
+        return subscriptions.map((sub: AccountWrapper<UserSubscription>): MerchantSubscription => ({
           publicKey: sub.publicKey,
           ...sub.account,
         }))

@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { getProgram } from '@/lib/solana/program'
-import { PublicKey } from '@solana/web3.js'
+import type { AccountWrapper, SubscriptionPlan, SubscriptionPlanWithPubkey } from '@/types/solpay_smartcontract'
 
 export function useMerchantPlans(merchantAddress?: string) {
   const wallet = useWallet()
 
   return useQuery({
     queryKey: ['subscription-plans', merchantAddress],
-    queryFn: async () => {
+    queryFn: async (): Promise<SubscriptionPlanWithPubkey[]> => {
       if (!merchantAddress) return []
 
       const program = getProgram(wallet)
@@ -33,11 +33,11 @@ export function useMerchantPlans(merchantAddress?: string) {
         // So fetching all and filtering is the way for now unless we add a secondary index or fixed offsets.
         // Let's fetch all and filter.
         
-          const allPlans = await (program.account as any).subscriptionPlan.all()
+        const allPlans = await (program.account as { subscriptionPlan: { all: () => Promise<AccountWrapper<SubscriptionPlan>[]> } }).subscriptionPlan.all()
         
         return allPlans
-            .filter((account: any) => account.account.merchantAddress.toString() === merchantAddress)
-          .map((account: any) => ({
+          .filter((account: AccountWrapper<SubscriptionPlan>) => account.account.merchantAddress.toString() === merchantAddress)
+          .map((account: AccountWrapper<SubscriptionPlan>): SubscriptionPlanWithPubkey => ({
             publicKey: account.publicKey,
             ...account.account
           }))
