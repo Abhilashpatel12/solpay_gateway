@@ -27,7 +27,6 @@ export function useSubscribe() {
   const wallet = useWallet()
   const { connection } = useConnection()
   const queryClient = useQueryClient()
-  const program = getProgram(wallet)
 
   return useMutation({
     mutationKey: ['subscribe'],
@@ -35,6 +34,9 @@ export function useSubscribe() {
       if (!wallet || !wallet.publicKey || !wallet.sendTransaction) {
         throw new Error('Wallet not connected')
       }
+
+      // Get program inside mutation to ensure wallet context is properly available
+      const program = getProgram(wallet)
 
       // Normalize plan shape: older code expected `plan.account.merchantAddress`,
       // newer hooks return plan fields at top-level. Support both.
@@ -64,7 +66,8 @@ export function useSubscribe() {
       // surface a clear error instead of letting the program call fail later.
       try {
         // If fetch succeeds, subscription already exists
-        await (program.account as { user_subscription: { fetch: (pubkey: PublicKey) => Promise<unknown> } }).user_subscription.fetch(userSubscriptionPda)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (program.account as any).user_subscription.fetch(userSubscriptionPda)
         throw new Error('Already subscribed to this plan')
       } catch (err: unknown) {
         // Anchor error messages vary between environments. If the account does
@@ -86,8 +89,10 @@ export function useSubscribe() {
       }
 
       // Preflight checks
-      await (program.account as { merchant_registration: { fetch: (pubkey: PublicKey) => Promise<unknown> } }).merchant_registration.fetch(merchantPda)
-      await (program.account as { subscription_plan: { fetch: (pubkey: PublicKey) => Promise<unknown> } }).subscription_plan.fetch(planPdaPub)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (program.account as any).merchant_registration.fetch(merchantPda)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (program.account as any).subscription_plan.fetch(planPdaPub)
 
       // Calculate next billing date
       const now = Math.floor(Date.now() / 1000)
