@@ -1,9 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { getProgram } from '@/lib/solana/program'
-import { getMerchantPda } from '@/lib/solana/pdas'
 import { prepareInitializeMerchant } from '@/lib/solana/transactions'
-import { PublicKey, SystemProgram } from '@solana/web3.js'
+import { PublicKey } from '@solana/web3.js'
 import { toast } from 'sonner'
 import { MerchantRegistrationDraft } from '../components/merchant-registration-form'
 
@@ -25,12 +23,12 @@ export function useInitializeMerchant() {
 
       return builder.rpc()
     },
-    onSuccess: (signature) => {
+    onSuccess: (signature: string) => {
       toast.success('Merchant initialized successfully!')
       console.log('Transaction signature:', signature)
       queryClient.invalidateQueries({ queryKey: ['merchant'] })
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error('Merchant initialization error:', error)
       toast.error(`Failed to initialize merchant: ${error.message}`)
     },

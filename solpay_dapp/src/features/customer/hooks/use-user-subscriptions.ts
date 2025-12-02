@@ -1,13 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { getProgram } from '@/lib/solana/program'
+import type { 
+  AccountWrapper, 
+  UserSubscription, 
+  SubscriptionPlan,
+  EnrichedUserSubscription 
+} from '@/types/solpay_smartcontract'
 
 export function useUserSubscriptions() {
   const wallet = useWallet()
 
   return useQuery({
     queryKey: ['user-subscriptions', wallet.publicKey?.toString()],
-    queryFn: async () => {
+    queryFn: async (): Promise<EnrichedUserSubscription[]> => {
       if (!wallet.publicKey) return []
 
       const program = getProgram(wallet)
@@ -19,7 +25,7 @@ export function useUserSubscriptions() {
         
         // Offset = 8
         
-        const subscriptions = await (program.account as any).userSubscription.all([
+        const subscriptions = await (program.account as { userSubscription: { all: (filters: unknown[]) => Promise<AccountWrapper<UserSubscription>[]> } }).userSubscription.all([
           {
             memcmp: {
               offset: 8,
@@ -34,15 +40,15 @@ export function useUserSubscriptions() {
         // Let's fetch plan details individually for now.
         
         const enrichedSubscriptions = await Promise.all(
-          subscriptions.map(async (sub: any) => {
+          subscriptions.map(async (sub: AccountWrapper<UserSubscription>): Promise<EnrichedUserSubscription> => {
             try {
-              const planAccount = await (program.account as any).subscriptionPlan.fetch(sub.account.subscriptionPlan)
+              const planAccount = await (program.account as { subscriptionPlan: { fetch: (pubkey: unknown) => Promise<SubscriptionPlan> } }).subscriptionPlan.fetch(sub.account.subscriptionPlan)
               return {
                 publicKey: sub.publicKey,
                 account: sub.account,
                 plan: planAccount
               }
-            } catch (e) {
+            } catch {
               // Plan might be closed or error?
               return {
                 publicKey: sub.publicKey,

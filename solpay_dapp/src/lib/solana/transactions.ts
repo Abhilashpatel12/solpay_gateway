@@ -9,6 +9,8 @@ import {
   getUserSubscriptionPda,
 } from '@/lib/solana/pdas'
 
+type ProgramWithMethods = ReturnType<typeof getProgram>
+
 export function prepareInitializeMerchant(wallet: WalletLike | undefined, args: {
   merchantName: string
   merchantWeburl: string
@@ -16,7 +18,7 @@ export function prepareInitializeMerchant(wallet: WalletLike | undefined, args: 
 }) {
   if (!wallet?.publicKey) throw new Error('Wallet is not connected')
 
-  const program = getProgram(wallet) as any
+  const program: ProgramWithMethods = getProgram(wallet)
   const [merchantPda] = getMerchantPda(wallet.publicKey)
 
   const builder = program.methods
@@ -40,7 +42,7 @@ export function prepareInitializeSubscriptionPlan(wallet: WalletLike | undefined
 }) {
   if (!wallet?.publicKey) throw new Error('Wallet is not connected')
 
-  const program = getProgram(wallet) as any
+  const program: ProgramWithMethods = getProgram(wallet)
   const [planPda] = getSubscriptionPlanPda(args.planName, wallet.publicKey)
   const [merchantPda] = getMerchantPda(wallet.publicKey)
 
@@ -72,7 +74,7 @@ export function prepareInitializeUserSubscription(wallet: WalletLike | undefined
 }) {
   if (!wallet?.publicKey) throw new Error('Wallet is not connected')
 
-  const program = getProgram(wallet) as any
+  const program: ProgramWithMethods = getProgram(wallet)
   const [userSubscriptionPda] = getUserSubscriptionPda(args.subscriptionPlan, wallet.publicKey)
 
   const builder = program.methods
@@ -94,7 +96,7 @@ export function prepareCancelSubscription(wallet: WalletLike | undefined, args: 
 }) {
   if (!wallet?.publicKey) throw new Error('Wallet is not connected')
 
-  const program = getProgram(wallet) as any
+  const program: ProgramWithMethods = getProgram(wallet)
   const builder = program.methods.initialize_cancel_subscription().accounts({
     user_subscription: args.userSubscription,
     subscription_plan: args.subscriptionPlan,
@@ -113,7 +115,7 @@ export function prepareLogPayment(wallet: WalletLike | undefined, args: {
 }) {
   if (!wallet?.publicKey) throw new Error('Wallet is not connected')
 
-  const program = getProgram(wallet) as any
+  const program: ProgramWithMethods = getProgram(wallet)
   const [paymentTransactionPda] = getPaymentTransactionPda(args.txSignature)
   // Hash the tx signature to a 32-byte array to match on-chain PDA derivation
   const sigHash = createHash('sha256').update(args.txSignature).digest()

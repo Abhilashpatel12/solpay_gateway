@@ -1,7 +1,23 @@
 import { NextResponse } from 'next/server'
 import { createHmac, timingSafeEqual } from 'crypto'
 
-export async function GET(_request: Request, { params }: { params: any }) {
+interface TokenPayload {
+  m: string  // merchantAddress
+  a?: number // amountLamports
+  d?: string // description
+  e: number  // expiry timestamp
+  n: string  // nonce
+  t?: string // type
+  p?: string // planName
+  pp?: string // planPda
+  b?: number // billingCycleDays
+}
+
+interface RouteParams {
+  params: Promise<{ token: string }>
+}
+
+export async function GET(_request: Request, { params }: RouteParams) {
   const secret = process.env.PAY_SIGNER_SECRET
   if (!secret) {
     return NextResponse.json({ error: 'PAY_SIGNER_SECRET not configured' }, { status: 500 })
@@ -32,21 +48,21 @@ export async function GET(_request: Request, { params }: { params: any }) {
     if (providedBuf.length !== expectedBuf.length || !timingSafeEqual(providedBuf, expectedBuf)) {
       return NextResponse.json({ error: 'Invalid token signature' }, { status: 400 })
     }
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Invalid token signature' }, { status: 400 })
   }
 
   let payloadJson: string
   try {
     payloadJson = Buffer.from(encoded, 'base64url').toString('utf8')
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Failed to decode token payload' }, { status: 400 })
   }
 
-  let payload: any
+  let payload: TokenPayload
   try {
     payload = JSON.parse(payloadJson)
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Invalid token payload' }, { status: 400 })
   }
 

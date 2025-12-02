@@ -7,6 +7,7 @@ import { useCancelSubscription } from '../hooks/use-cancel-subscription'
 import { Loader2 } from 'lucide-react'
 import { ellipsify } from '@/lib/utils'
 import { useWallet } from '@solana/wallet-adapter-react'
+import type { EnrichedUserSubscription } from '@/types/solpay_smartcontract'
 
 export function UserSubscriptionsPanel() {
   const { connected } = useWallet()
@@ -42,7 +43,7 @@ export function UserSubscriptionsPanel() {
             No subscriptions found.
           </div>
         ) : (
-          subscriptions.map((entry: any) => (
+          subscriptions.map((entry: EnrichedUserSubscription) => (
             <div key={entry.publicKey.toString()} className="flex flex-col sm:flex-row sm:items-center justify-between border rounded-md px-4 py-3 gap-4">
               <div>
                 <p className="font-medium text-lg">{entry.plan?.planName || 'Unknown Plan'}</p>

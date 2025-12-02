@@ -12,7 +12,7 @@ import { HeroSection } from './components/hero-section';
 export function LandingPage() {
   const router = useRouter()
   const wallet = useWallet()
-  const { data: merchant, isLoading: isMerchantLoading } = useMerchant()
+  const { data: merchant } = useMerchant()
 
   useEffect(() => {
     // If the user is connected and already has a merchant registration, navigate them

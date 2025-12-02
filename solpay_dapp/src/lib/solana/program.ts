@@ -1,10 +1,9 @@
-import { AnchorProvider, Program } from '@coral-xyz/anchor'
+import { AnchorProvider, Program, type Idl } from '@coral-xyz/anchor'
 import type { Adapter, SignerWalletAdapter } from '@solana/wallet-adapter-base'
 import type { Transaction } from '@solana/web3.js'
 import { getConnection } from '@/lib/solana/connection'
 import { SOLPAY_PROGRAM_ID } from '@/lib/solana/constants'
 import idl from '@/idl/solpay_smartcontract.json'
-import { SolpaySmartcontract } from '@/types/solpay_smartcontract'
 
 export type WalletLike = {
   publicKey: Adapter['publicKey']
@@ -29,12 +28,15 @@ export function getAnchorProvider(wallet?: WalletLike) {
   return new AnchorProvider(connection, anchorWallet as never, { commitment: 'confirmed' })
 }
 
+type IdlWithAddress = typeof idl & { address: string }
+
 export function getProgram(wallet?: WalletLike) {
   const provider = getAnchorProvider(wallet)
   // Ensure the program ID from the environment is used
   if (SOLPAY_PROGRAM_ID) {
-    (idl as any).address = SOLPAY_PROGRAM_ID.toBase58()
+    (idl as IdlWithAddress).address = SOLPAY_PROGRAM_ID.toBase58()
   }
-  // Cast to `any` to avoid strict IDL-derived typing issues in the codebase
-  return new Program(idl as any, provider) as any
+  // Cast through Idl type to allow dynamic account access patterns used in the codebase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return new Program(idl as unknown as Idl, provider) as any
 }

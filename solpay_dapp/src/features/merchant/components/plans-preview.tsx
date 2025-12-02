@@ -7,6 +7,8 @@ import { toast } from 'sonner'
 import { ShareLinkButton } from '@/components/share-link-button'
 import { useMerchantPlans } from '../hooks/use-merchant-plans'
 import { lamportsToSol } from '@/lib/solana/utils'
+import type { SubscriptionPlanWithPubkey } from '@/types/solpay_smartcontract'
+import type BN from 'bn.js'
 
 function formatSol(value: number) {
   if (!isFinite(value)) return '0'
@@ -26,13 +28,13 @@ export function PlansPreview({ merchantAddress }: { merchantAddress?: string }) 
     return `${window.location.origin}/pay/${merchantAddress}/${planName}`
   }
 
-  const buildSubscriptionTokenLink = async (plan: any) => {
+  const buildSubscriptionTokenLink = async (plan: SubscriptionPlanWithPubkey) => {
     if (!merchantAddress) {
       toast.error('Merchant address not found')
       return ''
     }
 
-    const raw = (plan.planPrice as any)
+    const raw = plan.planPrice as BN
     const lamports = raw && typeof raw === 'object' && typeof raw.toNumber === 'function' ? raw.toNumber() : Number(raw)
 
     try {
@@ -62,9 +64,10 @@ export function PlansPreview({ merchantAddress }: { merchantAddress?: string }) 
       await navigator.clipboard.writeText(url)
       toast.success('Subscription link copied to clipboard')
       return url
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to generate subscription link'
       console.error(err)
-      toast.error(err?.message ?? 'Failed to generate subscription link')
+      toast.error(message)
       return ''
     }
   }
@@ -98,7 +101,7 @@ export function PlansPreview({ merchantAddress }: { merchantAddress?: string }) 
               </TableRow>
             </TableHeader>
             <TableBody>
-              {plans.map((plan: any) => (
+              {plans.map((plan: SubscriptionPlanWithPubkey) => (
                 <TableRow key={plan.publicKey.toString()} className="hover:bg-muted/40">
                   <TableCell className="font-medium">
                     <Link
@@ -110,7 +113,7 @@ export function PlansPreview({ merchantAddress }: { merchantAddress?: string }) 
                   </TableCell>
                   <TableCell>
                     {(() => {
-                      const raw = (plan.planPrice as any)
+                      const raw = plan.planPrice as BN
                       const lamports = raw && typeof raw === 'object' && typeof raw.toNumber === 'function' ? raw.toNumber() : Number(raw)
                       const sol = lamportsToSol(isNaN(lamports) ? 0 : lamports)
                       return `${formatSol(sol)} SOL`

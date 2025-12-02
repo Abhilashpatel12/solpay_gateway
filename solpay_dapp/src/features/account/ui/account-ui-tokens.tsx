@@ -8,6 +8,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AppExplorerLink } from '@/components/app-explorer-link'
 import { useGetTokenAccountsQuery } from '../data-access/use-get-token-accounts-query'
 
+// Type for parsed token account data
+interface ParsedTokenAccountData {
+  parsed: {
+    info: {
+      mint: string
+      tokenAmount: {
+        uiAmount: number
+      }
+    }
+  }
+}
+
 export function AccountUiTokens({ address }: { address: Address }) {
   const [showAll, setShowAll] = useState(false)
   const query = useGetTokenAccountsQuery({ address })
@@ -56,30 +68,33 @@ export function AccountUiTokens({ address }: { address: Address }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {items?.map(({ account, pubkey }) => (
-                  <TableRow key={pubkey.toString()}>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <span className="font-mono">
-                          <AppExplorerLink label={ellipsify(pubkey.toString())} address={pubkey.toString()} />
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <span className="font-mono">
-                          <AppExplorerLink
-                            label={ellipsify(account.data.parsed.info.mint)}
-                            address={account.data.parsed.info.mint.toString()}
-                          />
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className="font-mono">{account.data.parsed.info.tokenAmount.uiAmount}</span>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {items?.map(({ account, pubkey }) => {
+                  const data = account.data as unknown as ParsedTokenAccountData
+                  return (
+                    <TableRow key={pubkey.toString()}>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <span className="font-mono">
+                            <AppExplorerLink label={ellipsify(pubkey.toString())} address={pubkey.toString()} />
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <span className="font-mono">
+                            <AppExplorerLink
+                              label={ellipsify(data.parsed.info.mint)}
+                              address={data.parsed.info.mint.toString()}
+                            />
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className="font-mono">{data.parsed.info.tokenAmount.uiAmount}</span>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
 
                 {(query.data?.length ?? 0) > 5 && (
                   <TableRow>

@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { getProgram } from '@/lib/solana/program'
 import { prepareCancelSubscription } from '@/lib/solana/transactions'
 import { PublicKey } from '@solana/web3.js'
 import { toast } from 'sonner'
@@ -26,11 +25,11 @@ export function useCancelSubscription() {
 
       return builder.rpc()
     },
-    onSuccess: (signature) => {
+    onSuccess: () => {
       toast.success('Subscription cancelled successfully')
       queryClient.invalidateQueries({ queryKey: ['user-subscriptions'] })
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error(`Failed to cancel subscription: ${error.message}`)
     },
   })

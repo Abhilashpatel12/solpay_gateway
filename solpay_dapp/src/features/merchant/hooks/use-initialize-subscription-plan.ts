@@ -1,9 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { getProgram } from '@/lib/solana/program'
-import { getMerchantPda, getSubscriptionPlanPda } from '@/lib/solana/pdas'
 import { prepareInitializeSubscriptionPlan } from '@/lib/solana/transactions'
-import { PublicKey, SystemProgram } from '@solana/web3.js'
+import { PublicKey } from '@solana/web3.js'
 import { toast } from 'sonner'
 import { BN } from '@coral-xyz/anchor'
 import { SubscriptionPlanDraft } from '../components/subscription-plan-form'
@@ -33,13 +31,13 @@ export function useInitializeSubscriptionPlan() {
       return builder.rpc()
     },
 
-    onSuccess: (signature) => {
+    onSuccess: (signature: string) => {
       toast.success('Subscription plan created successfully!')
       console.log('Transaction signature:', signature)
       queryClient.invalidateQueries({ queryKey: ['subscription-plans'] })
     },
 
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error(error)
       toast.error(`Failed to create plan: ${error.message}`)
     },

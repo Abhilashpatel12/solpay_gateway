@@ -18,6 +18,7 @@ const ClusterDropdown = dynamic(() => import('@/components/cluster-dropdown').th
   ssr: false,
 })
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function AppHeader({ links = [] }: { links: { label: string; path: string }[] }) {
   const pathname = usePathname()
   const [showMenu, setShowMenu] = useState(false)

@@ -2,6 +2,7 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { SystemProgram, Transaction, PublicKey, LAMPORTS_PER_SOL, SendTransactionError } from '@solana/web3.js'
+import type { Address } from 'gill'
 import { toastTx } from '@/components/toast-tx'
 import { useInvalidateGetBalanceQuery } from './use-invalidate-get-balance-query'
 import { useInvalidateGetSignaturesQuery } from './use-invalidate-get-signatures-query'
@@ -9,8 +10,8 @@ import { useInvalidateGetSignaturesQuery } from './use-invalidate-get-signatures
 export function useTransferSolMutation({ address }: { address: PublicKey }) {
   const { connection } = useConnection()
   const wallet = useWallet()
-  // Cast to any to satisfy the Address type if it's strict, assuming it's string compatible
-  const addressString = address.toString() as any 
+  // Cast to Address type for the query hooks
+  const addressString = address.toString() as Address 
   const invalidateBalanceQuery = useInvalidateGetBalanceQuery({ address: addressString })
   const invalidateSignaturesQuery = useInvalidateGetSignaturesQuery({ address: addressString })
 
@@ -34,7 +35,7 @@ export function useTransferSolMutation({ address }: { address: PublicKey }) {
         const signature = await wallet.sendTransaction(transaction, connection)
         await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight })
         return signature
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (error instanceof SendTransactionError) {
           console.error('Transaction failed', error)
           const logs = error.logs

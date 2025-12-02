@@ -3,6 +3,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Loader2 } from 'lucide-react'
 import { useMerchantSubscriptions } from '../hooks/use-merchant-subscriptions'
 import { ellipsify } from '@/lib/utils'
+import type { UserSubscription } from '@/types/solpay_smartcontract'
+import type { PublicKey } from '@solana/web3.js'
+
+interface MerchantSubscription extends UserSubscription {
+  publicKey: PublicKey
+}
 
 export function SubscribersList({ merchantAddress }: { merchantAddress?: string }) {
   const { data: subscriptions, isLoading } = useMerchantSubscriptions(merchantAddress)
@@ -36,7 +42,7 @@ export function SubscribersList({ merchantAddress }: { merchantAddress?: string 
               </TableRow>
             </TableHeader>
             <TableBody>
-              {subscriptions.map((sub: any) => (
+              {subscriptions.map((sub: MerchantSubscription) => (
                 <TableRow key={sub.publicKey.toString()}>
                   <TableCell className="font-medium font-mono">
                     {ellipsify(sub.subscriber.toString())}

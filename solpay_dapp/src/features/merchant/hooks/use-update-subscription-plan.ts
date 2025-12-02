@@ -27,14 +27,14 @@ export function useUpdateSubscriptionPlan() {
         .accounts({
           subscription_plan: planPda,
           merchant_address: wallet.publicKey,
-        } as any)
+        })
         .rpc()
     },
     onSuccess: () => {
       toast.success('Subscription plan updated successfully')
       queryClient.invalidateQueries({ queryKey: ['merchant-plans'] })
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(`Failed to update plan: ${error.message ?? error}`)
     },
   })

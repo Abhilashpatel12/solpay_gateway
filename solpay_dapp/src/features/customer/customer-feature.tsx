@@ -1,6 +1,4 @@
-import { SubscriptionPlanSelector } from '@/features/customer/components/subscription-plan-selector'
 import { UserSubscriptionsPanel } from '@/features/customer/components/user-subscriptions-panel'
-import { PaymentReceiptsTable } from '@/features/customer/components/payment-receipts-table'
 
 export function CustomerFeature() {
   return (
